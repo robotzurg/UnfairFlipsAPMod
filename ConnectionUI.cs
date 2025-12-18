@@ -10,31 +10,30 @@ namespace UnfairFlipsAPMod
         private string slotName = "Jeff-UF";
 #elif RELEASE
         private string hostname = "archipelago.gg";
-        private string slotName = "";
+        private string slotName = "Player1";
 #endif
         private string port = "38281";
         private string password = "";
         private string statusMessage = "";
         private Rect windowRect = new Rect(Screen.width / 2 - 300, Screen.height / 2 - 250, 800, 700);
 
-        private ArchipelagoClient apClient;
+        private ArchipelagoHandler apHandler;
 
-        public void Initialize(ArchipelagoClient client)
+        public void Initialize(ArchipelagoHandler handler)
         {
-            apClient = client;
-            apClient.OnConnected += () => statusMessage = "Connected successfully!";
-            apClient.OnConnectionFailed += (error) => statusMessage = $"Failed: {error}";
-            apClient.OnDisconnected += () => statusMessage = "Disconnected";
+            apHandler = handler;
+            apHandler.OnConnected += () => statusMessage = "Connected successfully!";
+            apHandler.OnConnectionFailed += (error) => statusMessage = $"Failed: {error}";
+            apHandler.OnDisconnected += () => statusMessage = "Disconnected";
 
             // When connected, persist the connection info so it can be used as default next time
-            apClient.OnConnected += () =>
+            apHandler.OnConnected += () =>
             {
-                var fw = GameObject.FindObjectOfType<FileWriter>();
-                if (fw != null)
-                {
-                    int.TryParse(port, out int p);
-                    fw.WriteLastConnection(hostname, p, slotName, password);
-                }
+                var fw = FindObjectOfType<FileWriter>();
+                if (fw == null) 
+                    return;
+                int.TryParse(port, out var p);
+                fw.WriteLastConnection(hostname, p, slotName, password);
             };
 
             // Try to prefill fields from last saved connection
@@ -107,11 +106,11 @@ namespace UnfairFlipsAPMod
             password = GUILayout.PasswordField(password, '*', GUILayout.Height(40));
             GUILayout.Space(15);
 
-            if (apClient != null && apClient.IsConnected)
+            if (apHandler != null && apHandler.IsConnected)
             {
                 if (GUILayout.Button("Disconnect", GUILayout.Height(40)))
                 {
-                    apClient.Disconnect();
+                    apHandler.Disconnect();
                 }
             }
             else
@@ -122,10 +121,11 @@ namespace UnfairFlipsAPMod
                     {
                         statusMessage = "Please enter a slot name!";
                     }
-                    else if (int.TryParse(port, out int portNum))
+                    else if (int.TryParse(port, out var portNum))
                     {
                         statusMessage = "Connecting...";
-                        apClient.Connect(hostname, portNum, slotName, password);
+                        apHandler.CreateSession(hostname, portNum, slotName, password);
+                        apHandler.Connect();
                     }
                     else
                     {

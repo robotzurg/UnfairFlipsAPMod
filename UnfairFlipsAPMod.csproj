@@ -22,6 +22,15 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" />
-		<Publicize Include="Assembly-CSharp"></Publicize>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Publicize Include="Assembly-CSharp"/>
+		<Reference Include="nl.jeffreylanters.tweens">
+		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\nl.jeffreylanters.tweens.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\UnityEngine.UI.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 </Project>
