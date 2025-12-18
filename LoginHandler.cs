@@ -42,7 +42,7 @@ public class LoginHandler : MonoBehaviour
 
     public void SetCoinEnabled(bool enabled)
     {
-        var flipButton = GameObject.Find("Canvas/RATIO CANVAS/Coin Panel");
+        var flipButton = GameObject.Find("Canvas/RATIO CANVAS/Coin Panel/FlipButton");
         if (flipButton != null)
             flipButton.SetActive(enabled);
     }
@@ -54,7 +54,24 @@ public class LoginHandler : MonoBehaviour
         [HarmonyPostfix]
         private static void Start_Postfix(PanelManager __instance)
         {
-            __instance.coinPanel.gameObject.SetActive(false);
+            __instance.coinPanel.Find("FlipButton").gameObject.SetActive(false);
+        }
+    }
+
+    [HarmonyPatch(typeof(LogoFade))]
+    private class LogoFade_Patch
+    {
+        [HarmonyPatch("Update")]
+        [HarmonyPrefix]
+        public static bool Update_Prefix(LogoFade __instance)
+        {
+            if (!UnfairFlipsAPMod.ArchipelagoHandler.IsConnected)
+                return false;
+            __instance.img.color = Mathy.Decay(__instance.img.color, new Color(__instance.img.color.r, __instance.img.color.g, __instance.img.color.b, 0.0f), 8f, Time.deltaTime);
+            if (__instance.img.color.a >= 0.05f)
+                return false;
+            Destroy(__instance.gameObject, 0.2f);
+            return false;
         }
     }
 }

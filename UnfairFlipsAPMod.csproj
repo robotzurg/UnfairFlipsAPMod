@@ -29,8 +29,17 @@
 		<Reference Include="nl.jeffreylanters.tweens">
 		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\nl.jeffreylanters.tweens.dll</HintPath>
 		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine.UI">
 		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\UnityEngine.UI.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Copy
+				SourceFiles="$(TargetPath)"
+				DestinationFiles="F:\SteamLibrary\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod\$(TargetFileName)" />
+	</Target>
 </Project>

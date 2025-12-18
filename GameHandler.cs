@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using HarmonyLib;
 using Tweens;
 using Tweens.Core;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace UnfairFlipsAPMod;
 
@@ -38,11 +41,18 @@ public class GameHandler
         private static IEnumerator Flip(CoinFlip coinFlip)
         {
             InitFlip(coinFlip);
+
+            var flipTime = SaveManager.SaveData.FlipTime;
+            if (SaveManager.SaveData.QueuedSlowTraps > 0)
+            {
+                SaveManager.SaveData.QueuedSlowTraps--;
+                flipTime = 10f;
+            }
             
             var anchoredPositionTween1 = new AnchoredPositionTween();
             anchoredPositionTween1.from = coinFlip.GetComponent<RectTransform>().anchoredPosition;
             anchoredPositionTween1.to = coinFlip.flipTarget;
-            anchoredPositionTween1.duration = SaveManager.SaveData.FlipTime / 2f;
+            anchoredPositionTween1.duration = flipTime / 2f;
             anchoredPositionTween1.delay = 0.0f;
             anchoredPositionTween1.easeType = (EaseType) 21;
             coinFlip.gameObject.AddTween(anchoredPositionTween1);
@@ -50,13 +60,20 @@ public class GameHandler
             var anchoredPositionTween2 = new AnchoredPositionTween();
             anchoredPositionTween2.from = coinFlip.flipTarget;
             anchoredPositionTween2.to = coinFlip.flipBasePosition;
-            anchoredPositionTween2.duration = SaveManager.SaveData.FlipTime / 2f;
-            anchoredPositionTween2.delay = SaveManager.SaveData.FlipTime / 2f;
+            anchoredPositionTween2.duration = flipTime / 2f;
+            anchoredPositionTween2.delay = flipTime / 2f;
             anchoredPositionTween2.easeType = (EaseType) 30;
             coinFlip.gameObject.AddTween(anchoredPositionTween2);
           
             var flipTurnMultiplier = (float)Random.Range(3, 6);
-            var heads = Random.Range(0.0f, 1f) < (double) SaveManager.SaveData.HeadsChance;
+            
+            var maxHeadsAllowed = 1 + (SaveManager.SaveData.Fairness * 2);
+            var canBeHeads = (coinFlip.headsComboNum + 1) <= maxHeadsAllowed;
+            canBeHeads = canBeHeads && SaveManager.SaveData.QueuedTailsTraps == 0;
+            if (SaveManager.SaveData.QueuedTailsTraps > 0)
+                SaveManager.SaveData.QueuedTailsTraps--;
+            var heads = canBeHeads && Random.Range(0.0f, 1f) < (double) SaveManager.SaveData.HeadsChance;
+            
             if (heads != coinFlip.prevWasHeads)
                 flipTurnMultiplier += 0.5f;
             var comboFailed = false;
@@ -69,8 +86,13 @@ public class GameHandler
             {
                 if (coinFlip.headsComboNum > 2)
                     comboFailed = true;
+                if (coinFlip.headsComboNum >= SlotData.DeathLinkMinStreak && SlotData.DeathLink)
+                {
+                    var sendDeath = Random.Range(0.0f, 1f) < (double)SlotData.DeathLinkChance / 100;
+                    if (sendDeath)
+                        UnfairFlipsAPMod.ArchipelagoHandler.SendDeath();
+                }
                 coinFlip.headsComboNum = 0;
-                // TODO set up deathlink
             }
             
             if (heads && coinFlip.headsComboNum == SlotData.RequiredHeads)
@@ -78,7 +100,6 @@ public class GameHandler
                 coinFlip.panelManager.SetPanelArrangement(4);
                 coinFlip.flipButton.enabled = false;
                 UnfairFlipsAPMod.ArchipelagoHandler.Release();
-                SaveManager.WipeGame();
                 coinFlip.gameObject.CancelTweens(false);
                 var anchoredPositionTween3 = new AnchoredPositionTween();
                 anchoredPositionTween3.from = coinFlip.flipBasePosition;
@@ -138,26 +159,37 @@ public class GameHandler
             }
             else
             {
-                while (coinFlip.currentFlipDuration < (double) SaveManager.SaveData.FlipTime)
+                while (coinFlip.currentFlipDuration < (double) flipTime)
                 {
                     coinFlip.currentFlipDuration += Time.deltaTime;
-                    coinFlip.currentFlipAnimateDuration += Time.deltaTime * 360f / SaveManager.SaveData.FlipTime * flipTurnMultiplier;
+                    coinFlip.currentFlipAnimateDuration += Time.deltaTime * 360f / flipTime * flipTurnMultiplier;
                     coinFlip.transform.eulerAngles = new Vector3(0.0f, 0.0f, coinFlip.currentFlipAnimateDuration);
                     yield return null;
                 }
                 coinFlip.transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
                 long money = SaveManager.SaveData.CoinValue * Mathf.CeilToInt(Mathf.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1));
+                if (SaveManager.SaveData.QueuedPennyTraps > 0)
+                {
+                    SaveManager.SaveData.QueuedPennyTraps--;
+                    money = 1 * Mathf.CeilToInt(Mathf.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1));
+                }
+                if (SaveManager.SaveData.QueuedTaxTraps > 0)
+                {
+                    SaveManager.SaveData.QueuedTaxTraps--;
+                    money *= -1;
+                }
                 if (heads)
                 {
                     var message = "HEADS";
                     for (var index = 1; index < coinFlip.headsComboNum; ++index)
                         message += "!";
+                    UnfairFlipsAPMod.ArchipelagoHandler.CheckLocation(0x100 + coinFlip.headsComboNum);
                     coinFlip.messageManager.ShowMessage(message);
                     coinFlip.img.sprite = coinFlip.coinColors[coinFlip.currentCoin].coinHappy;
-                    coinFlip.playerMoney.moneyInCents += money;
+                    SaveManager.SaveData.PlayerMoney += money;
                     coinFlip.UnlockCheevo(coinFlip.headsComboNum + "FLIP");
                     var gameObject = Object.Instantiate(coinFlip.prf_sfx);
-                    gameObject.GetComponent<AudioSource>().clip = coinFlip.headsSounds[coinFlip.headsComboNum - 1];
+                    gameObject.GetComponent<AudioSource>().clip = coinFlip.headsSounds[Math.Min(coinFlip.headsComboNum - 1, 9)];
                     gameObject.GetComponent<AudioSource>().Play();
                     Object.Destroy(gameObject, 3f);
                 }
@@ -183,7 +215,7 @@ public class GameHandler
                         coinFlip.timeSinceMoved = 0.0f;
                     coinFlip.bigMoment = false;
                 }
-                if (coinFlip.headsComboNum == 9)
+                if (coinFlip.headsComboNum == SlotData.RequiredHeads - 1)
                 {
                     coinFlip.bigMoment = true;
                     coinFlip.panelManager.SetPanelArrangement(3);
@@ -198,6 +230,8 @@ public class GameHandler
 
     public void Kill()
     {
-        
+        var coinFlip = Object.FindObjectOfType<CoinFlip>();
+        if (coinFlip != null)
+            coinFlip.headsComboNum = 0;
     }
 }

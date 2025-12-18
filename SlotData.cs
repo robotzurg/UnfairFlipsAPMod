@@ -16,15 +16,14 @@ public class SlotData
 
     public SlotData(Dictionary<string, object> slotDict)
     {
-        RequiredHeads =        (int)slotDict["RequiredHeads"];
-        StartingHeadsChance =  (int)slotDict["StartingHeadsChance"];
-        DeathLink =            (int)slotDict["DeathLink"] == 1;
-        DeathLinkChance =      (int)slotDict["DeathLinkChance"];
-        DeathLinkMinStreak =   (int)slotDict["DeathLinkMinStreak"];
-        HeadsUpgradeCount =    (int)slotDict["HeadsUpgradeCount"];
-        FlipTimeUpgradeCount = (int)slotDict["FlipSpeedUpgradeCount"];
-        ComboUpgradeCount =    (int)slotDict["ComboUpgradeCount"];
-        ValueUpgradeCount =    (int)slotDict["ValueUpgradeCount"];
+        RequiredHeads =        (int)(long)slotDict["RequiredHeads"];
+        StartingHeadsChance =  (int)(long)slotDict["StartingHeadsChance"];
+        DeathLink =            (int)(long)slotDict["DeathLink"] == 1;
+        DeathLinkChance =      (int)(long)slotDict["DeathLinkChance"];
+        DeathLinkMinStreak =   (int)(long)slotDict["DeathLinkMinStreak"];
+        HeadsUpgradeCount =    (int)(long)slotDict["HeadsUpgradeCount"];
+        FlipTimeUpgradeCount = (int)(long)slotDict["FlipSpeedUpgradeCount"];
+        ComboUpgradeCount =    (int)(long)slotDict["ComboUpgradeCount"];
         if (DeathLink)
             UnfairFlipsAPMod.ArchipelagoHandler.UpdateTags(["DeathLink"]);
     }

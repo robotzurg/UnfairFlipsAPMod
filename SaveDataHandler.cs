@@ -9,19 +9,33 @@ namespace UnfairFlipsAPMod;
 
 public class CustomSaveData
 {
-    public int ItemIndex { get; set; }
-    public int Fairness { get; set; }
-    public float HeadsChance { get; set; }
-    public float FlipTime { get; set; }
-    public float ComboMult { get; set; }
-    public int CoinValue { get; set; }
-    public int HeadsStreak { get; set; }
-    public int FlipCount { get; set; }
-    public long PlayerMoney { get; set; }
-    public int QueuedTailsTraps { get; set; }
-    public int QueuedPennyTraps { get; set; }
-    public int QueuedTaxTraps { get; set; }
-    public int QueuedSlowTraps { get; set; }
+    public int ItemIndex;
+    public int Fairness;
+    public float HeadsChance;
+    public float FlipTime;
+    public float ComboMult;
+    public int CoinValue;
+    public int CoinUpgradeLevel;
+    public int HeadsStreak;
+    public int FlipCount;
+
+    [SerializeField]
+    private string playerMoney = "0";
+
+    public long PlayerMoney
+    {
+        get => long.Parse(playerMoney);
+        set
+        {
+            var maxMoney = (long)Math.Pow(10, Fairness);
+            playerMoney = Math.Min(value, maxMoney).ToString();
+        }
+    }
+    
+    public int QueuedTailsTraps;
+    public int QueuedPennyTraps;
+    public int QueuedTaxTraps;
+    public int QueuedSlowTraps;
 }
 
 public class SaveDataHandler
@@ -30,7 +44,6 @@ public class SaveDataHandler
     private string fileName;
     public CustomSaveData SaveData;
     public ShopButton[] ShopButtons;
-    private bool gameWiped;
     
     public void GetSaveGame(string seed, string slot)
     {
@@ -65,8 +78,6 @@ public class SaveDataHandler
         var objectOfType = Object.FindObjectOfType<CoinFlip>();
         objectOfType.SetHeadsStreak(SaveData.HeadsStreak);
         objectOfType.SetNumFlips(SaveData.FlipCount);
-        Object.FindObjectOfType<PlayerMoney>().moneyInCents = SaveData.PlayerMoney;
-        // TODO Add handling for archipelago data
         Log.Debug("Game loaded!");
     }
 
@@ -74,17 +85,13 @@ public class SaveDataHandler
     {
         Log.Debug("Creating new game...");
         SaveData = new CustomSaveData();
+        SaveData.Fairness = 0;
+        SaveData.HeadsChance = (float)UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100;
+        SaveData.FlipTime = ArchipelagoConstants.MaxFlipTime;
+        SaveData.ComboMult = ArchipelagoConstants.MinComboMultiplier;
+        SaveData.CoinValue = 1;
+        SaveData.CoinUpgradeLevel = 0;
         SaveGame();
-    }
-    
-    public void WipeGame()
-    {
-        Log.Debug("WIPING GAME");
-        gameWiped = true;
-        SaveData.HeadsStreak = 0;
-        SaveData.FlipCount = 0;
-        SaveData.PlayerMoney = 0L;
-        FinishSavingGame();
     }
 
     public void ResetGame() => SceneManager.LoadScene("Game");
@@ -92,12 +99,9 @@ public class SaveDataHandler
     public void SaveGame()
     {
         Log.Debug("Starting save...");
-        if (gameWiped)
-            return;
         var objectOfType = Object.FindObjectOfType<CoinFlip>();
         SaveData.HeadsStreak = objectOfType.GetHeadsStreak();
         SaveData.FlipCount = objectOfType.GetNumFlips();
-        SaveData.PlayerMoney = Object.FindObjectOfType<PlayerMoney>().moneyInCents;
         FinishSavingGame();
     }
 

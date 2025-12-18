@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Archipelago.MultiClient.Net.Converters;
+using Archipelago.MultiClient.Net.Models;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Random = System.Random;
@@ -76,10 +77,11 @@ namespace UnfairFlipsAPMod
                 if (seed != null)
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
                 
-                FindObjectOfType<PanelManager>().SetPanelArrangement(3);
+                FindObjectOfType<PanelManager>().SetPanelArrangement(2);
                 
                 StartCoroutine(RunCheckQueue());
                 OnConnected?.Invoke();
+                return;
             }
 
             var failure = (LoginFailure)result;
@@ -182,9 +184,21 @@ namespace UnfairFlipsAPMod
             Session.Socket.SendPacket(packet);
         }
         
-        private static void OnMessageReceived(LogMessage message)
+        private void OnMessageReceived(LogMessage message)
         {
-            //.Log(message.ToString() ?? string.Empty);
+            AddMessageToGameLog(message.ToString());
+        }
+
+        private void AddMessageToGameLog(string message)
+        {
+            StartCoroutine(AddMessageToGameLogRoutine(message));
+        }
+        
+        private MessageManager MessageManager => FindObjectOfType<MessageManager>();
+        private IEnumerator AddMessageToGameLogRoutine(string message)
+        {
+            yield return null;
+            MessageManager?.ShowMessage(message);
         }
         
         private void PacketReceived(ArchipelagoPacketBase packet)
@@ -262,10 +276,15 @@ namespace UnfairFlipsAPMod
         {
             if (!UnfairFlipsAPMod.SlotData.DeathLink)
                 return;
-            //Log($"{cause}");
+            AddMessageToGameLog(cause);
             if (source == Slot)
                 return;
             UnfairFlipsAPMod.GameHandler.Kill();
+        }
+
+        public ScoutedItemInfo TryScoutLocation(long locationId)
+        {
+            return Session.Locations.ScoutLocationsAsync(locationId)?.Result?.Values.First();
         }
     }
 }
