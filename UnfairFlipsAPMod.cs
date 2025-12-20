@@ -8,7 +8,7 @@ namespace UnfairFlipsAPMod
     {
         private const string PluginGuid = "UnfairFlipsAPMod";
         private const string PluginName = "Unfair Flips Archipelago Mod";
-        private const string PluginVersion = "1.0.0";
+        private const string PluginVersion = "1.0.1";
         private readonly Harmony harmony = new(PluginGuid);
         public static SlotData SlotData;
         public static ArchipelagoHandler ArchipelagoHandler { get; private set; }
@@ -28,7 +28,7 @@ namespace UnfairFlipsAPMod
             ArchipelagoHandler = gameObject.AddComponent<ArchipelagoHandler>();
             LoginHandler = gameObject.AddComponent<LoginHandler>();
             LoginHandler.CreateUI(ArchipelagoHandler);
-            GameHandler = new GameHandler();
+            GameHandler = gameObject.AddComponent<GameHandler>();
             ItemHandler = new ItemHandler();
             SaveDataHandler = new SaveDataHandler();
             

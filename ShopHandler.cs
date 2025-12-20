@@ -27,27 +27,44 @@ public class ShopHandler
         [HarmonyPrefix]
         public static bool Update_Prefix(ShopButton __instance)
         {
-            if (!UnfairFlipsAPMod.ArchipelagoHandler.IsConnected || UnfairFlipsAPMod.SlotData == null)
+            if (!UnfairFlipsAPMod.ArchipelagoHandler.IsConnected ||
+                UnfairFlipsAPMod.SlotData == null)
                 return false;
-            var gateCount = UnfairFlipsAPMod.SlotData.RequiredHeads / 2;
-            for (var level = 0; level < gateCount; level++)
-            {
-                var locationId = (long)(0x200 + level * 4 + __instance.upgradeType);
-                if (UnfairFlipsAPMod.ArchipelagoHandler.IsLocationChecked(locationId))
-                    continue;
 
-                if (!scoutedLocations.Contains(locationId))
+            var gateCount = UnfairFlipsAPMod.SlotData.RequiredHeads / 2;
+
+            for (var gateIndex = 0; gateIndex < gateCount; gateIndex++)
+            {
+                for (var layer = 0; layer < ArchipelagoConstants.ShopLayers; layer++)
                 {
-                    var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
-                    scoutedLocations.Add(locationId);
-                    __instance.currentCost = (int)Math.Ceiling(Math.Pow(10, level) * UnityEngine.Random.Range(0.6f, 0.9f));
-                    __instance.text.text = $"{info.ItemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                    var shopIndex = gateIndex * ArchipelagoConstants.ShopLayers + layer;
+                    long locationId = 0x200 + shopIndex * 4 + (int)__instance.upgradeType;
+
+                    if (UnfairFlipsAPMod.ArchipelagoHandler.IsLocationChecked(locationId))
+                        continue;
+
+                    if (!scoutedLocations.Contains(locationId))
+                    {
+                        var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
+                        scoutedLocations.Add(locationId);
+
+                        __instance.currentCost = (int)Math.Ceiling(
+                            Math.Pow(10, gateIndex) *
+                            UnityEngine.Random.Range(0.6f, 0.9f)
+                        );
+
+                        __instance.text.text =
+                            $"{info.ItemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                    }
+
+                    __instance.button.interactable =
+                        UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= __instance.currentCost;
+
+                    currentLocationForButton[__instance] = locationId;
+                    return false;
                 }
-                __instance.button.interactable = UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= __instance.currentCost;
-                currentLocationForButton[__instance] = locationId;
-                return false;
             }
-            
+
             currentLocationForButton.Remove(__instance);
             __instance.gameObject.SetActive(false);
             return false;

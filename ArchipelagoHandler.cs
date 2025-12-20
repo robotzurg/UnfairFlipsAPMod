@@ -78,7 +78,7 @@ namespace UnfairFlipsAPMod
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
                 
                 FindObjectOfType<PanelManager>().SetPanelArrangement(2);
-                
+                UnfairFlipsAPMod.GameHandler.InitOnConnect();
                 StartCoroutine(RunCheckQueue());
                 OnConnected?.Invoke();
                 return;

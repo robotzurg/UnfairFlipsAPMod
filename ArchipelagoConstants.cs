@@ -14,8 +14,13 @@ namespace UnfairFlipsAPMod
         public const float MinFlipTime = 0.2f;
         public const float MaxFlipTime = 5f;
         
-        public const float MaxComboMultiplier = 5;
-        public const float MinComboMultiplier = 2;
+        public const float MaxComboMultiplier = 3.5f;
+        public const float MinComboMultiplier = 1.2f;
+
+        public const float MaxAutoFlipAddition = 5;
+        public const float MinAutoFlipAddition = 0.5f;
+
+        public const int ShopLayers = 2;
 
         // ========== LOCATION CONSTANTS (what you check in-game) ==========
         // These are the location IDs that get sent when you accomplish something

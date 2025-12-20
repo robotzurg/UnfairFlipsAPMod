@@ -12,18 +12,28 @@ public class SlotData
     public readonly int HeadsUpgradeCount;
     public readonly int FlipTimeUpgradeCount;
     public readonly int ComboUpgradeCount;
-    public readonly int ValueUpgradeCount;
+    public readonly int AutoFlipUpgradeCount;
 
     public SlotData(Dictionary<string, object> slotDict)
     {
-        RequiredHeads =        (int)(long)slotDict["RequiredHeads"];
-        StartingHeadsChance =  (int)(long)slotDict["StartingHeadsChance"];
-        DeathLink =            (int)(long)slotDict["DeathLink"] == 1;
-        DeathLinkChance =      (int)(long)slotDict["DeathLinkChance"];
-        DeathLinkMinStreak =   (int)(long)slotDict["DeathLinkMinStreak"];
-        HeadsUpgradeCount =    (int)(long)slotDict["HeadsUpgradeCount"];
-        FlipTimeUpgradeCount = (int)(long)slotDict["FlipSpeedUpgradeCount"];
-        ComboUpgradeCount =    (int)(long)slotDict["ComboUpgradeCount"];
+        if (slotDict.TryGetValue("RequiredHeads", out var requiredHeads))
+            RequiredHeads = (int)(long)requiredHeads;
+        if (slotDict.TryGetValue("StartingHeadsChance", out var startingHeadsChance))
+            StartingHeadsChance = (int)(long)startingHeadsChance;
+        if (slotDict.TryGetValue("DeathLink", out var deathLink))
+            DeathLink = (int)(long)deathLink == 1;
+        if (slotDict.TryGetValue("DeathLinkChance", out var deathLinkChance))
+            DeathLinkChance = (int)(long)deathLinkChance;
+        if (slotDict.TryGetValue("DeathLinkMinStreak", out var deathLinkMinStreak))
+            DeathLinkMinStreak = (int)(long)deathLinkMinStreak;
+        if (slotDict.TryGetValue("HeadsUpgradeCount", out var headsUpgradeCount))
+            HeadsUpgradeCount = (int)(long)headsUpgradeCount;
+        if (slotDict.TryGetValue("FlipTimeUpgradeCount", out var flipTimeUpgradeCount))
+            FlipTimeUpgradeCount = (int)(long)flipTimeUpgradeCount;
+        if (slotDict.TryGetValue("ComboUpgradeCount", out var comboUpgradeCount))
+            ComboUpgradeCount = (int)(long)comboUpgradeCount;
+        if (slotDict.TryGetValue("AutoFlipUpgradeCount", out var autoFlipUpgradeCount))
+            AutoFlipUpgradeCount = (int)(long)autoFlipUpgradeCount;
         if (DeathLink)
             UnfairFlipsAPMod.ArchipelagoHandler.UpdateTags(["DeathLink"]);
     }

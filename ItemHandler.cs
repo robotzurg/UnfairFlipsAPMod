@@ -14,6 +14,7 @@ public enum UFItem
     FlipUp = 0x3,
     ComboUp = 0x4,
     CoinUp = 0x5,
+    AutoFlipUp = 0x6,
     
     TailsTrap = 0x10,
     PennyTrap = 0x11,
@@ -62,39 +63,15 @@ public class ItemHandler
                     saveData.ComboMult = Math.Min(ArchipelagoConstants.MaxComboMultiplier, newValue); 
                     break;
                 case UFItem.CoinUp:
-                    var num = 0;
-                    var color = Color.white;
-                    var vector3 = Vector3.one;
-                    var coinType = 0;
                     UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinUpgradeLevel++;
-                    switch (UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinUpgradeLevel)
-                    {
-                        case 1:
-                            num = 5;
-                            color = new Color(0.9f, 0.9f, 0.9f, 1f);
-                            coinType = 1;
-                            break;
-                        case 2:
-                            num = 10;
-                            color = new Color(1f, 1f, 1f, 1f);
-                            vector3 = Vector3.one * 0.7f;
-                            coinType = 1;
-                            break;
-                        case 3:
-                            num = 25;
-                            vector3 = Vector3.one * 1.2f;
-                            coinType = 1;
-                            break;
-                        case >= 4:
-                            num = 100;
-                            vector3 = Vector3.one * 1.2f;
-                            coinType = 2;
-                            break;
-                    }
-                    UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinValue = num;
-                    Object.FindObjectOfType<CoinFlip>().GetComponent<Image>().color = color;
-                    Object.FindObjectOfType<CoinFlip>().transform.localScale = vector3;
-                    Object.FindObjectOfType<CoinFlip>().SetCoinType(coinType);
+                    UnfairFlipsAPMod.GameHandler.UpdateCoinValue();
+                    break;
+                case UFItem.AutoFlipUp:
+                    saveData.HasAutoFlip = true;
+                    maxTotalDecrease = ArchipelagoConstants.MaxAutoFlipAddition - ArchipelagoConstants.MinAutoFlipAddition;
+                    decreasePerUpgrade = maxTotalDecrease / slotData.AutoFlipUpgradeCount;
+                    newValue = saveData.AutoFlipAddition - decreasePerUpgrade;
+                    saveData.AutoFlipAddition = Math.Max(ArchipelagoConstants.MinAutoFlipAddition, newValue);
                     break;
                 case UFItem.TailsTrap:
                     saveData.QueuedTailsTraps++;

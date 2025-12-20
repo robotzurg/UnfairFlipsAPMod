@@ -1,16 +1,96 @@
 ﻿using System;
 using System.Collections;
+using System.Numerics;
 using HarmonyLib;
 using Tweens;
 using Tweens.Core;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
+using Vector3 = UnityEngine.Vector3;
 
 namespace UnfairFlipsAPMod;
 
-public class GameHandler
+public class GameHandler : MonoBehaviour
 {
+    private static Coroutine _queuedAutoFlip;
+    private static CoinFlip _coinFlip;
+    
+    public void InitOnConnect()
+    {
+        UpdateCoinValue();
+        AutoFlipIconHandler.CreateButton();
+        _coinFlip = FindObjectOfType<CoinFlip>();
+        QueueNextAutoFlip();
+    }
+
+    public void UpdateCoinValue()
+    {
+        var num = 1;
+        var color = Color.white;
+        var vector3 = Vector3.one;
+        var coinType = 0;
+        switch (UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinUpgradeLevel)
+        {
+            case 1:
+                num = 5;
+                color = new Color(0.9f, 0.9f, 0.9f, 1f);
+                coinType = 1;
+                break;
+            case 2:
+                num = 10;
+                color = new Color(1f, 1f, 1f, 1f);
+                vector3 = Vector3.one * 0.7f;
+                coinType = 1;
+                break;
+            case 3:
+                num = 25;
+                vector3 = Vector3.one * 1.2f;
+                coinType = 1;
+                break;
+            case >= 4:
+                num = 100;
+                vector3 = Vector3.one * 1.2f;
+                coinType = 2;
+                break;
+        }
+        UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinValue = num;
+        FindObjectOfType<CoinFlip>().GetComponent<Image>().color = color;
+        FindObjectOfType<CoinFlip>().transform.localScale = vector3;
+        FindObjectOfType<CoinFlip>().SetCoinType(coinType);
+    }
+
+    private static BigInteger _flipMoneyResult;
+    [HarmonyPatch(typeof(FlipResultMessage))]
+    private class FlipResultMessage_Patch
+    {
+        [HarmonyPatch("ShowResult")]
+        [HarmonyPrefix]
+        public static bool ShowResult(FlipResultMessage __instance, bool heads, long money, int comboNum)
+        {
+            __instance.gameObject.CancelTweens();
+            __instance.text.text = !heads ? "TAILS" : $"HEADS {comboNum}X\n{(_flipMoneyResult > 0L ? Mathy.CentsToDollarString(_flipMoneyResult) : "")}";
+            _flipMoneyResult = 0;
+            __instance.text.color = Color.white;
+            var anchoredPositionYtween = new AnchoredPositionYTween();
+            anchoredPositionYtween.from = __instance.baseYPos;
+            anchoredPositionYtween.to = __instance.baseYPos + 150f;
+            anchoredPositionYtween.duration = 1f;
+            anchoredPositionYtween.easeType = EaseType.QuartOut;
+            __instance.gameObject.AddTween(anchoredPositionYtween);
+            var colorTween = new Tweens.ColorTween();
+            colorTween.from = Color.white;
+            colorTween.to = new Color(1f, 1f, 1f, 0.0f);
+            colorTween.duration = 1f;
+            colorTween.easeType = EaseType.Linear;
+            colorTween.onUpdate = (_, value) => __instance.text.color = value;
+            __instance.gameObject.AddTween(colorTween);
+            return false;
+        }
+    }
+    
+    
     [HarmonyPatch(typeof(CoinFlip))]
     private class CoinFlip_Patch
     {
@@ -21,6 +101,11 @@ public class GameHandler
         [HarmonyPrefix]
         private static bool DoFlip_Prefix(CoinFlip __instance)
         {
+            if (_queuedAutoFlip != null)
+            {
+                __instance.StopCoroutine(_queuedAutoFlip);
+                _queuedAutoFlip = null;
+            }
             if (__instance.isFlipping)
                 return false;
             __instance.StartCoroutine(Flip(__instance));
@@ -136,9 +221,10 @@ public class GameHandler
                     coinFlip.currentFlipDuration += seconds;
                     yield return new WaitForSeconds(seconds);
                 }
-                coinFlip.audioSource.clip = coinFlip.headsSounds[9];
+                coinFlip.audioSource.clip = coinFlip.headsSounds[0];
                 coinFlip.audioSource.Play();
-                Object.FindObjectOfType<FlipResultMessage>().ShowResult(true, 0L, 10);
+                _flipMoneyResult = 0;
+                FindObjectOfType<FlipResultMessage>().ShowResult(true, 0L, SlotData.RequiredHeads);
                 yield return new WaitForSeconds(1f);
                 var objectsOfType = Object.FindObjectsOfType<RocketSpawner>();
                 objectsOfType[0].SpawnRockets(0.0f);
@@ -167,11 +253,11 @@ public class GameHandler
                     yield return null;
                 }
                 coinFlip.transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
-                long money = SaveManager.SaveData.CoinValue * Mathf.CeilToInt(Mathf.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1));
+                var money = SaveManager.SaveData.CoinValue * new BigInteger(Math.Ceiling(Math.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
                 if (SaveManager.SaveData.QueuedPennyTraps > 0)
                 {
                     SaveManager.SaveData.QueuedPennyTraps--;
-                    money = 1 * Mathf.CeilToInt(Mathf.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1));
+                    money = 1 * new BigInteger(Math.Ceiling(Math.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
                 }
                 if (SaveManager.SaveData.QueuedTaxTraps > 0)
                 {
@@ -205,7 +291,8 @@ public class GameHandler
                     coinFlip.audioSource.volume = 0.5f;
                     coinFlip.audioSource.Play();
                 }
-                Object.FindObjectOfType<FlipResultMessage>().ShowResult(heads, money, coinFlip.headsComboNum);
+                _flipMoneyResult = money;
+                FindObjectOfType<FlipResultMessage>().ShowResult(heads, 0, coinFlip.headsComboNum);
                 if (coinFlip.numFlips > 2 && coinFlip.panelManager.GetCurrentArrangement() < 1)
                     coinFlip.panelManager.SetPanelArrangement(1);
                 if ((coinFlip.numFlips >= 8 || coinFlip.bigMoment & comboFailed) && (coinFlip.panelManager.GetCurrentArrangement() < 2 || coinFlip.bigMoment & comboFailed))
@@ -224,13 +311,34 @@ public class GameHandler
                 coinFlip.prevWasHeads = heads;
                 coinFlip.isFlipping = false;
                 SaveManager.SaveGame();
+                QueueNextAutoFlip();
             }
         }
+    }
+    
+    public static void QueueNextAutoFlip()
+    {
+        if (!UnfairFlipsAPMod.SaveDataHandler.SaveData.HasAutoFlip)
+            return;
+        if (!AutoFlipIconHandler.IsAutoFlipEnabled)
+            return;
+        _queuedAutoFlip = _coinFlip.StartCoroutine(AutoFlipDelayCoroutine(_coinFlip));
+    }
+    
+    private static IEnumerator AutoFlipDelayCoroutine(CoinFlip coinFlip)
+    {
+        var delay = UnfairFlipsAPMod.SaveDataHandler.SaveData.AutoFlipAddition;
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
+        if (!coinFlip.isFlipping 
+            && UnfairFlipsAPMod.SaveDataHandler.SaveData.HasAutoFlip 
+            && AutoFlipIconHandler.IsAutoFlipEnabled)
+            coinFlip.DoFlip();
     }
 
     public void Kill()
     {
-        var coinFlip = Object.FindObjectOfType<CoinFlip>();
+        var coinFlip = FindObjectOfType<CoinFlip>();
         if (coinFlip != null)
             coinFlip.headsComboNum = 0;
     }

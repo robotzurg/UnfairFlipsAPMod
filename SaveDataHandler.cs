@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
+using System.Runtime;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,22 +15,24 @@ public class CustomSaveData
     public int Fairness;
     public float HeadsChance;
     public float FlipTime;
+    public float AutoFlipAddition;
     public float ComboMult;
     public int CoinValue;
     public int CoinUpgradeLevel;
     public int HeadsStreak;
     public int FlipCount;
+    public bool HasAutoFlip;
 
     [SerializeField]
     private string playerMoney = "0";
 
-    public long PlayerMoney
+    public BigInteger PlayerMoney
     {
-        get => long.Parse(playerMoney);
+        get => BigInteger.Parse(playerMoney);
         set
         {
-            var maxMoney = (long)Math.Pow(10, Fairness);
-            playerMoney = Math.Min(value, maxMoney).ToString();
+            var maxMoney = new BigInteger(Math.Pow(10, Fairness));
+            playerMoney = value > maxMoney ? maxMoney.ToString() : value.ToString();
         }
     }
     
@@ -91,6 +95,7 @@ public class SaveDataHandler
         SaveData.ComboMult = ArchipelagoConstants.MinComboMultiplier;
         SaveData.CoinValue = 1;
         SaveData.CoinUpgradeLevel = 0;
+        SaveData.AutoFlipAddition = ArchipelagoConstants.MaxAutoFlipAddition;
         SaveGame();
     }
 
