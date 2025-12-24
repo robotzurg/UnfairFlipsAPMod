@@ -22,7 +22,35 @@ public class GameHandler : MonoBehaviour
         UpdateCoinValue();
         AutoFlipIconHandler.CreateButton();
         _coinFlip = FindObjectOfType<CoinFlip>();
+        _coinFlip.tutorialMessages =
+        [
+            CreateTutorialMessage("Welcome to Unfair Flips Archipelago!", 2),
+            CreateTutorialMessage("This game doesn't have a credits screen", 3),
+            CreateTutorialMessage("So we'll list off all the cool people who helped make this a reality here", 4),
+            CreateTutorialMessage("Developer - xMcacutt", 5),
+            CreateTutorialMessage("Client Development - JeffDev", 6),
+            CreateTutorialMessage("apworld Logic - itepastra (Noa)", 7),
+            CreateTutorialMessage("apworld Support - DashieSwag92", 8),
+            CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 9),
+            CreateTutorialMessage("May the odds... idk do whatever they feel like", 10),
+            CreateTutorialMessage("WOW you did a hundred flips. That's almost a hundred and one. Goo:) Job", 100),
+            CreateTutorialMessage("WOW you did a hundred and one flips. That's almost a hundred and two. Goo:) Job!", 101),
+            CreateTutorialMessage("Okay I'll stop now...", 102),
+            CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
+            CreateTutorialMessage("Nice", 69),
+            CreateTutorialMessage("You are statistically likely to finish this game.", 300),
+            CreateTutorialMessage("The new button in the top right turns on autoflip... In case you're feeling too lazy to press a button.", 200),
+            CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000)
+        ];
         QueueNextAutoFlip();
+    }
+
+    private CoinFlip.TutorialMessage CreateTutorialMessage(string message, int flipNum)
+    {
+        var tutorialMessage = new CoinFlip.TutorialMessage();
+        tutorialMessage.flipnum = flipNum;
+        tutorialMessage.message = message;
+        return tutorialMessage;
     }
 
     public void UpdateCoinValue()
@@ -127,6 +155,12 @@ public class GameHandler : MonoBehaviour
         {
             InitFlip(coinFlip);
 
+            for (var index = 0; index < coinFlip.tutorialMessages.Length; ++index)
+            {
+                if (coinFlip.tutorialMessages[index].flipnum == coinFlip.numFlips)
+                    coinFlip.messageManager.ShowMessage($"<color=#bbffbb>{coinFlip.tutorialMessages[index].message}</color>");
+            }
+            
             var flipTime = SaveManager.SaveData.FlipTime;
             if (SaveManager.SaveData.QueuedSlowTraps > 0)
             {

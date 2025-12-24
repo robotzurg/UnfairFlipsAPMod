@@ -37,7 +37,6 @@ namespace UnfairFlipsAPMod
         private readonly string[] deathMessages =
         [
             "had a skill issue (died)",
-            
         ];
         
         public void CreateSession(string server, int port, string slot, string password)
