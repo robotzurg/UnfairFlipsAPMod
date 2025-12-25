@@ -8,7 +8,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using Archipelago.MultiClient.Net.Colors;
 using Archipelago.MultiClient.Net.Converters;
 using Archipelago.MultiClient.Net.Models;
 using Newtonsoft.Json.Linq;
@@ -37,7 +39,27 @@ namespace UnfairFlipsAPMod
         private readonly string[] deathMessages =
         [
             "had a skill issue (died)",
+            "RNGesus has smitten you on this day (died)",
         ];
+        
+        private static string GetColorHex(PaletteColor? color)
+        {
+            return color switch
+            {
+                PaletteColor.Red => "#EE0000",
+                PaletteColor.Green => "#00FF7F",
+                PaletteColor.Yellow => "#FAFAD2",
+                PaletteColor.Blue => "#6495ED",
+                PaletteColor.Magenta => "#EE00EE",
+                PaletteColor.Cyan => "#00EEEE",
+                PaletteColor.Black => "#000000",
+                PaletteColor.White => "#FFFFFF",
+                PaletteColor.SlateBlue => "#6D8BE8",
+                PaletteColor.Salmon => "#FA8072",
+                PaletteColor.Plum => "#AF99EF",
+                _ => "#FFFFFF" // Default to white
+            };
+        }
         
         public void CreateSession(string server, int port, string slot, string password)
         {
@@ -50,7 +72,6 @@ namespace UnfairFlipsAPMod
             Session.Socket.ErrorReceived += OnError;
             Session.Socket.SocketClosed += OnSocketClosed;
             Session.Socket.PacketReceived += PacketReceived;
-            Session.Items.ItemReceived += ItemReceived;
         }
         
         public void Connect()
@@ -62,7 +83,7 @@ namespace UnfairFlipsAPMod
                 "Unfair Flips",
                 Slot,
                 ItemsHandlingFlags.AllItems,
-                new Version(0, 6, 4),
+                new Version(0, 6, 5),
                 [],
                 password: Password
             ).Result;
@@ -76,6 +97,9 @@ namespace UnfairFlipsAPMod
                 if (seed != null)
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
                 
+                Log.Message("Subscribing to item events...");
+                Session.Items.ItemReceived += ItemReceived;
+            
                 FindObjectOfType<PanelManager>().SetPanelArrangement(2);
                 UnfairFlipsAPMod.GameHandler.InitOnConnect();
                 StartCoroutine(RunCheckQueue());
@@ -132,6 +156,24 @@ namespace UnfairFlipsAPMod
             }
         }
 
+        public void ResyncItems()
+        {
+            if (Session == null || !IsConnected)
+            {
+                Log.Warning("Cannot resync items: Not connected to Archipelago");
+                return;
+            }
+
+            Log.Message("Resyncing items from server...");
+            var items = Session.Items.AllItemsReceived;
+            for (int i = 0; i < items.Count; i++)
+            {
+                UnfairFlipsAPMod.ItemHandler.HandleItem(i, items[i], false);
+            }
+            UnfairFlipsAPMod.SaveDataHandler.SaveGame();
+            Log.Message($"Resync complete. Processed up to item {items.Count}");
+        }
+
         public void Release()
         {
             Session.SetGoalAchieved();
@@ -185,7 +227,22 @@ namespace UnfairFlipsAPMod
         
         private void OnMessageReceived(LogMessage message)
         {
-            AddMessageToGameLog(message.ToString());
+            string messageStr;
+            if (message.Parts.Length == 1)
+            {
+                messageStr = message.Parts[0].Text;
+            }
+            else
+            {
+                var builder = new StringBuilder();
+                foreach (var part in message.Parts)
+                {
+                    string hexColor = GetColorHex(part.PaletteColor);
+                    builder.Append($"<color={hexColor}>{part.Text}</color>");
+                }
+                messageStr = builder.ToString();
+            }
+            AddMessageToGameLog(messageStr);
         }
 
         private void AddMessageToGameLog(string message)

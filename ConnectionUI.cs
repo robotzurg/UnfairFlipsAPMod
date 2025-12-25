@@ -68,6 +68,14 @@ namespace UnfairFlipsAPMod
             {
                 ToggleUI();
             }
+
+            // There might be a better place to put this lol
+            // - Jeff
+            if (Input.GetKeyDown(KeyCode.F5))
+            {
+                Log.Message("F5 pressed - resyncing items...");
+                apHandler.ResyncItems();
+            }
         }
 
         private void OnGUI()

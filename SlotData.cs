@@ -28,7 +28,7 @@ public class SlotData
             DeathLinkMinStreak = (int)(long)deathLinkMinStreak;
         if (slotDict.TryGetValue("HeadsUpgradeCount", out var headsUpgradeCount))
             HeadsUpgradeCount = (int)(long)headsUpgradeCount;
-        if (slotDict.TryGetValue("FlipTimeUpgradeCount", out var flipTimeUpgradeCount))
+        if (slotDict.TryGetValue("FlipSpeedUpgradeCount", out var flipTimeUpgradeCount))
             FlipTimeUpgradeCount = (int)(long)flipTimeUpgradeCount;
         if (slotDict.TryGetValue("ComboUpgradeCount", out var comboUpgradeCount))
             ComboUpgradeCount = (int)(long)comboUpgradeCount;

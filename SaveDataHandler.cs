@@ -66,18 +66,22 @@ public class SaveDataHandler
             CreateNewGame();
     }
     
+    // ReSharper disable Unity.PerformanceAnalysis
     private void LoadGame()
     {
         Log.Debug("Loading game...");
-        var json = File.ReadAllText(fileName);
         try
         {
+            using FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using StreamReader reader = new StreamReader(fs);
+            var json = reader.ReadToEnd();
             SaveData = JsonUtility.FromJson<CustomSaveData>(json);
         }
-        catch
+        catch (Exception ex)
         {
-            Log.Debug("First save file is corrupted!! Starting new game...");
+            Log.Debug($"Save file is corrupted or locked: {ex.Message}. Starting new game...");
             CreateNewGame();
+            return;
         }
         var objectOfType = Object.FindObjectOfType<CoinFlip>();
         objectOfType.SetHeadsStreak(SaveData.HeadsStreak);

@@ -28,19 +28,20 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("This game doesn't have a credits screen", 3),
             CreateTutorialMessage("So we'll list off all the cool people who helped make this a reality here", 4),
             CreateTutorialMessage("Developer - xMcacutt", 5),
-            CreateTutorialMessage("Client Development - JeffDev", 6),
+            CreateTutorialMessage("Client Development - Jeffdev", 6),
             CreateTutorialMessage("apworld Logic - itepastra (Noa)", 7),
             CreateTutorialMessage("apworld Support - DashieSwag92", 8),
             CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 9),
             CreateTutorialMessage("May the odds... idk do whatever they feel like", 10),
+            CreateTutorialMessage("I don't wanna hear it.", 67),
+            CreateTutorialMessage("Nice", 69),
             CreateTutorialMessage("WOW you did a hundred flips. That's almost a hundred and one. Goo:) Job", 100),
             CreateTutorialMessage("WOW you did a hundred and one flips. That's almost a hundred and two. Goo:) Job!", 101),
             CreateTutorialMessage("Okay I'll stop now...", 102),
-            CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
-            CreateTutorialMessage("Nice", 69),
-            CreateTutorialMessage("You are statistically likely to finish this game.", 300),
             CreateTutorialMessage("The new button in the top right turns on autoflip... In case you're feeling too lazy to press a button.", 200),
-            CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000)
+            CreateTutorialMessage("You are statistically likely to finish this game.", 300),
+            CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
+            CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000),
         ];
         QueueNextAutoFlip();
     }
@@ -124,6 +125,14 @@ public class GameHandler : MonoBehaviour
     {
         private static SaveDataHandler SaveManager => UnfairFlipsAPMod.SaveDataHandler;
         private static SlotData SlotData => UnfairFlipsAPMod.SlotData;
+
+        [HarmonyPatch("Start")]
+        [HarmonyPostfix]
+        private static void Start_Postfix()
+        {
+            Log.Debug("CoinFlip started, flushing item queue...");
+            UnfairFlipsAPMod.ItemHandler?.FlushQueue();
+        }
         
         [HarmonyPatch("DoFlip")]
         [HarmonyPrefix]
