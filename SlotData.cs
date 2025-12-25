@@ -36,5 +36,6 @@ public class SlotData
             AutoFlipUpgradeCount = (int)(long)autoFlipUpgradeCount;
         if (DeathLink)
             UnfairFlipsAPMod.ArchipelagoHandler.UpdateTags(["DeathLink"]);
+        UnfairFlipsAPMod.ItemHandler.FlushQueue();
     }
 }

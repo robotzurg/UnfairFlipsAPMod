@@ -64,6 +64,8 @@ public class SaveDataHandler
             LoadGame();
         else 
             CreateNewGame();
+        
+        UnfairFlipsAPMod.ItemHandler.FlushQueue();
     }
     
     // ReSharper disable Unity.PerformanceAnalysis
