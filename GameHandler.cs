@@ -16,11 +16,13 @@ public class GameHandler : MonoBehaviour
 {
     private static Coroutine _queuedAutoFlip;
     private static CoinFlip _coinFlip;
+    private static SlotData SlotData => UnfairFlipsAPMod.SlotData;
     
     public void InitOnConnect()
     {
         UpdateCoinValue();
         AutoFlipIconHandler.CreateButton();
+        ReceivedItemsButtonHandler.CreateButton();
         _coinFlip = FindObjectOfType<CoinFlip>();
         _coinFlip.tutorialMessages =
         [
@@ -28,13 +30,26 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("This game doesn't have a credits screen", 3),
             CreateTutorialMessage("So we'll list off all the cool people who helped make this a reality here", 4),
             CreateTutorialMessage("Developer - xMcacutt", 5),
-            CreateTutorialMessage("Client Development - Jeffdev", 6),
+            CreateTutorialMessage("Co-Developer - Jeffdev", 6),
             CreateTutorialMessage("apworld Logic - itepastra (Noa)", 7),
             CreateTutorialMessage("apworld Support - DashieSwag92", 8),
             CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 9),
             CreateTutorialMessage("May the odds... idk do whatever they feel like", 10),
-            CreateTutorialMessage("I don't wanna hear it.", 67),
-            CreateTutorialMessage("Nice", 69),
+            CreateTutorialMessage($"Your goal is to get {SlotData.RequiredHeads} heads in a row!", 20),
+            CreateTutorialMessage("Curious about the Archipelago items?", 30),
+            CreateTutorialMessage("Heads+/Progressive Fairness increase the chance of getting heads and heads in a row respectively", 31),
+            CreateTutorialMessage("Flip+ decreases the flip time", 32),
+            CreateTutorialMessage("Combo+ increases the combo multiplier", 33),
+            CreateTutorialMessage("Coin+ increases the coin type progressively", 34),
+            CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35),
+            CreateTutorialMessage("$/$$/$$$ give 1/10/100 cents respectively", 36),
+            CreateTutorialMessage("Tails Trap makes your next coinflip tails", 37),
+            CreateTutorialMessage("Penny Trap makes your next coinflip worth a penny", 38),
+            CreateTutorialMessage("Tax Trap makes you pay some money after your next coinflip", 39),
+            CreateTutorialMessage("Slow Trap makes the next coinflip take 10 seconds", 40),
+            CreateTutorialMessage("That's all you need to know! Good luck!", 41),
+            CreateTutorialMessage("67 coin flips. I don't wanna hear it.", 67),
+            CreateTutorialMessage("69 coin flips. Nice.", 69),
             CreateTutorialMessage("WOW you did a hundred flips. That's almost a hundred and one. Goo:) Job", 100),
             CreateTutorialMessage("WOW you did a hundred and one flips. That's almost a hundred and two. Goo:) Job!", 101),
             CreateTutorialMessage("Okay I'll stop now...", 102),
@@ -42,6 +57,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("You are statistically likely to finish this game.", 300),
             CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
             CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000),
+            CreateTutorialMessage("Honestly, if you're seeing this, you might be too unlucky for this game. Hope things go better next time!.", 10000)
         ];
         QueueNextAutoFlip();
     }

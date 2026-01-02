@@ -48,6 +48,7 @@ public class ShopHandler
                     {
                         var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
                         scoutedLocations.Add(locationId);
+                        var usefulText = info.Flags.HasFlag(ItemFlags.Advancement) ? " (Useful!)" : "";
 
                         __instance.currentCost = (int)Math.Ceiling(
                             Math.Pow(10, gateIndex) *
@@ -55,7 +56,7 @@ public class ShopHandler
                         );
 
                         __instance.text.text =
-                            $"{info.ItemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                            $"{info.ItemDisplayName}{usefulText}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
                     }
 
                     __instance.button.interactable =

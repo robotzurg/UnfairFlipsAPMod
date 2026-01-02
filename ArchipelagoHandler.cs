@@ -40,6 +40,7 @@ namespace UnfairFlipsAPMod
         [
             "had a skill issue (died)",
             "RNGesus has smitten you on this day (died)",
+            "You probably shouldn't go to the lottery... (died)"
         ];
         
         private static string GetColorHex(PaletteColor? color)
@@ -341,6 +342,42 @@ namespace UnfairFlipsAPMod
         public ScoutedItemInfo TryScoutLocation(long locationId)
         {
             return Session.Locations.ScoutLocationsAsync(locationId)?.Result?.Values.First();
+        }
+
+        public void DisplayItemCounts()
+        {
+            if (Session == null || !IsConnected)
+            {
+                AddMessageToGameLog("Not connected to Archipelago.");
+                return;
+            }
+
+            var items = Session.Items.AllItemsReceived;
+            if (items.Count == 0)
+            {
+                AddMessageToGameLog("No items received yet.");
+                return;
+            }
+
+            var itemCounts = new Dictionary<string, int>();
+            foreach (var item in items)
+            {
+                var itemName = item.ItemName;
+                // The $ ones aren't really worth showing, so we can just exclude them
+                if (itemName == "$" || itemName == "$$" || itemName == "$$$")
+                    continue;
+                    
+                if (itemCounts.ContainsKey(itemName))
+                    itemCounts[itemName]++;
+                else
+                    itemCounts[itemName] = 1;
+            }
+
+            AddMessageToGameLog("<color=#00FF7F>Upgrades Received:</color>");
+            foreach (var kvp in itemCounts.OrderByDescending(x => x.Value))
+            {
+                AddMessageToGameLog($"{kvp.Key}: {kvp.Value}");
+            }
         }
     }
 }
