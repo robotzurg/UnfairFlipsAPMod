@@ -48,7 +48,7 @@ public class ShopHandler
                     {
                         var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
                         scoutedLocations.Add(locationId);
-                        var usefulText = info.Flags.HasFlag(ItemFlags.Advancement) ? " (Useful!)" : "";
+                        var usefulText = info.Flags.HasFlag(ItemFlags.Advancement) ? " (Helpful!)" : "";
 
                         __instance.currentCost = (int)Math.Ceiling(
                             Math.Pow(10, gateIndex) *
