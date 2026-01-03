@@ -55,3 +55,4 @@ nunit-*.xml
 Assembly-CSharp.dll
 /UnfairFlipsAPMod.csproj
 UnfairFlipsAPMod.csproj
+.env

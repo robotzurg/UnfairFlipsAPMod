@@ -11,6 +11,10 @@
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		
+		<EnvFileContent Condition="Exists('$(MSBuildProjectDirectory)\.env')">$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\.env'))</EnvFileContent>
+		<STEAM_PATH>$([System.Text.RegularExpressions.Regex]::Match($(EnvFileContent), `(?m)^STEAM_PATH\s*=\s*["']?([^"'\r\n]+)["']?`).Groups[1].Value)</STEAM_PATH>
+		<STEAM_PATH Condition="'$(STEAM_PATH)' == ''">C:\Program Files (x86)\Steam</STEAM_PATH>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,23 +27,23 @@
 		</PackageReference>
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" />
 		<Reference Include="Assembly-CSharp">
-			<HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<HintPath>$(STEAM_PATH)\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Publicize Include="Assembly-CSharp"/>
 		<Reference Include="nl.jeffreylanters.tweens">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\nl.jeffreylanters.tweens.dll</HintPath>
+		  <HintPath>$(STEAM_PATH)\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\nl.jeffreylanters.tweens.dll</HintPath>
 		</Reference>
 		<Reference Include="Unity.TextMeshPro">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+		  <HintPath>$(STEAM_PATH)\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\Unity.TextMeshPro.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\UnityEngine.UI.dll</HintPath>
+		  <HintPath>$(STEAM_PATH)\steamapps\common\Unfair Flips\Unfair Flips_Data\Managed\UnityEngine.UI.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy
 				SourceFiles="$(TargetPath)"
-				DestinationFiles="F:\SteamLibrary\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod\$(TargetFileName)" />
+				DestinationFiles="$(STEAM_PATH)\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod\$(TargetFileName)" />
 	</Target>
 </Project>
