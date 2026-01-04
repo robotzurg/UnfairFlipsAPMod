@@ -25,7 +25,7 @@ public class CounterPatches
         public static bool Update_Prefix(MoneyCounter __instance)
         {
             if (UnfairFlipsAPMod.SaveDataHandler?.SaveData != null)
-                __instance.text.text = Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney);
+                __instance.text.text = Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney) + "/" + Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDatahandler.SaveData.MaxMoney);
             return false;
         }
     }
