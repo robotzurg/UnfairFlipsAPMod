@@ -26,6 +26,10 @@ public class CustomSaveData
     [SerializeField]
     private string playerMoney = "0";
 
+    public BigInteger MaxMoney {
+        get => new BigInteger(Math.Pow(10, Fairness));
+    }
+
     public BigInteger PlayerMoney
     {
         get => BigInteger.Parse(playerMoney);
