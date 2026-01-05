@@ -42,7 +42,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("Combo+ increases the combo multiplier", 33),
             CreateTutorialMessage("Coin+ increases the coin type progressively", 34),
             CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35),
-            CreateTutorialMessage("$/$$/$$$ give 1/10/100 cents respectively", 36),
+            CreateTutorialMessage("$/$$/$$$ give money, more money, and even more money respectively", 36),
             CreateTutorialMessage("Tails Trap makes your next coinflip tails", 37),
             CreateTutorialMessage("Penny Trap makes your next coinflip worth a penny", 38),
             CreateTutorialMessage("Tax Trap makes you pay some money after your next coinflip", 39),

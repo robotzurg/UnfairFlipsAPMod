@@ -31,6 +31,7 @@ namespace UnfairFlipsAPMod
             GameHandler = gameObject.AddComponent<GameHandler>();
             ItemHandler = new ItemHandler();
             SaveDataHandler = new SaveDataHandler();
+            gameObject.AddComponent<CounterPatches>();
             
             ArchipelagoHandler.OnConnected += () =>
             {

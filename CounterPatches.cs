@@ -1,9 +1,31 @@
 ﻿using HarmonyLib;
+using TMPro;
+using UnityEngine;
 
 namespace UnfairFlipsAPMod;
 
-public class CounterPatches
+public class CounterPatches : MonoBehaviour
 {
+    private GameObject moneyCapObject;
+    private static TextMeshProUGUI moneyCapText;
+    
+    public void Start()
+    {
+        var moneyCounter = FindObjectOfType<MoneyCounter>();
+        var source = moneyCounter.GetComponent<TMP_Text>();
+        var parent = moneyCounter.transform.parent;
+        moneyCapObject = new GameObject("MoneyCap");
+        moneyCapObject.transform.SetParent(parent.transform, false);
+        moneyCapText = moneyCapObject.AddComponent<TextMeshProUGUI>();
+        moneyCapText.font = source.font;
+        moneyCapText.fontSize = source.fontSize;
+        moneyCapText.alignment = TextAlignmentOptions.Center;
+        moneyCapText.enableAutoSizing = true;
+        moneyCapText.richText = true;
+        moneyCapText.color = Color.white;
+        moneyCapObject.transform.Translate(0, 340f, 0);
+    }
+    
     [HarmonyPatch(typeof(HeadsChanceCounter))]
     public class HeadsChanceCounter_Patch
     {
@@ -25,7 +47,10 @@ public class CounterPatches
         public static bool Update_Prefix(MoneyCounter __instance)
         {
             if (UnfairFlipsAPMod.SaveDataHandler?.SaveData != null)
-                __instance.text.text = Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney) + "/" + Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDatahandler.SaveData.MaxMoney);
+            {
+                __instance.text.text = Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney);
+                moneyCapText.text = "Max Money: " + Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.MaxMoney);
+            }
             return false;
         }
     }
