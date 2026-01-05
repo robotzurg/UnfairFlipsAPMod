@@ -26,18 +26,12 @@ public class CustomSaveData
     [SerializeField]
     private string playerMoney = "0";
 
-    public BigInteger MaxMoney {
-        get => new BigInteger(Math.Pow(10, Fairness));
-    }
+    public BigInteger MaxMoney => new(Math.Pow(10, Fairness + 1));
 
     public BigInteger PlayerMoney
     {
         get => BigInteger.Parse(playerMoney);
-        set
-        {
-            var maxMoney = new BigInteger(Math.Pow(10, Fairness));
-            playerMoney = value > maxMoney ? maxMoney.ToString() : value.ToString();
-        }
+        set => playerMoney = value > MaxMoney ? MaxMoney.ToString() : value.ToString();
     }
     
     public int QueuedTailsTraps;
