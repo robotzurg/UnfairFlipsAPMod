@@ -16,6 +16,8 @@ public class CounterPatches : MonoBehaviour
         var parent = moneyCounter.transform.parent;
         moneyCapObject = new GameObject("MoneyCap");
         moneyCapObject.transform.SetParent(parent.transform, false);
+        moneyCapObject.transform.position = moneyCounter.gameObject.transform.position;
+        moneyCapObject.transform.localPosition = moneyCounter.gameObject.transform.localPosition;
         moneyCapText = moneyCapObject.AddComponent<TextMeshProUGUI>();
         moneyCapText.font = source.font;
         moneyCapText.fontSize = source.fontSize;
@@ -23,7 +25,7 @@ public class CounterPatches : MonoBehaviour
         moneyCapText.enableAutoSizing = true;
         moneyCapText.richText = true;
         moneyCapText.color = Color.white;
-        moneyCapObject.transform.Translate(0, 340f, 0);
+        moneyCapObject.transform.Translate(0, -40f, 0);
     }
     
     [HarmonyPatch(typeof(HeadsChanceCounter))]
