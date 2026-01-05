@@ -9,7 +9,7 @@ namespace UnfairFlipsAPMod
     public static class ArchipelagoConstants
     {
         // ========== DATA CONSTANTS =======================================
-        public const float MaxHeadsChance = 0.9f;
+        public const float MaxHeadsChance = 0.95f;
         
         public const float MinFlipTime = 0.2f;
         public const float MaxFlipTime = 5f;
