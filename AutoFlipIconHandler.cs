@@ -52,7 +52,12 @@ public class AutoFlipIconHandler
         {
             IsAutoFlipEnabled = !IsAutoFlipEnabled;
             if (IsAutoFlipEnabled)
+            {
                 GameHandler.QueueNextAutoFlip();
+                UnfairFlipsAPMod.ArchipelagoHandler.DisplayAutoFlipMsg();
+            }
+                
+            
             image.sprite = IsAutoFlipEnabled ? _autoFlipOnSprite : _autoFlipOffSprite;
         });
     }

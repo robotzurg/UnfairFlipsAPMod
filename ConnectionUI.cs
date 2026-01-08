@@ -75,6 +75,7 @@ namespace UnfairFlipsAPMod
             {
                 Log.Message("F5 pressed - resyncing items...");
                 apHandler.ResyncItems();
+                UnfairFlipsAPMod.ArchipelagoHandler.DisplayResyncMsg();
             }
         }
 

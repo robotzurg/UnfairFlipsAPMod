@@ -37,7 +37,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("May the odds... idk do whatever they feel like", 10),
             CreateTutorialMessage($"Your goal is to get {SlotData.RequiredHeads} heads in a row!", 20),
             CreateTutorialMessage("Curious about the Archipelago items?", 30),
-            CreateTutorialMessage("Heads+/Progressive Fairness increase the chance of getting heads and heads in a row respectively", 31),
+            CreateTutorialMessage("Heads+/Progressive Fairness increase the chance of getting heads, and increases the max heads in a row you can get respectively", 31),
             CreateTutorialMessage("Flip+ decreases the flip time", 32),
             CreateTutorialMessage("Combo+ increases the combo multiplier", 33),
             CreateTutorialMessage("Coin+ increases the coin type progressively", 34),

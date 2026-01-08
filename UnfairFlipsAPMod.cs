@@ -1,5 +1,6 @@
 using BepInEx;
 using HarmonyLib;
+using UnityEngine;
 
 namespace UnfairFlipsAPMod
 {
@@ -19,6 +20,7 @@ namespace UnfairFlipsAPMod
 
         public void Awake()
         {
+            Application.runInBackground = true;
             harmony.PatchAll();
             Log.Init(Logger);
 

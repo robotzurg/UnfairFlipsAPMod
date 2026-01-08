@@ -117,7 +117,7 @@ public class ItemHandler
             return;
         }
         
-        saveData.ItemIndex++;
+        saveData.ItemIndex = index + 1;
         
         switch ((UFItem)item.ItemId)
         {
@@ -127,28 +127,28 @@ public class ItemHandler
                 break;
                 
             case UFItem.HeadsUp:
+                saveData.HeadsUpCount++;
                 var startingHeadsChance = slotData.StartingHeadsChance / 100f;
-                var maxTotalIncrease = ArchipelagoConstants.MaxHeadsChance - startingHeadsChance;
-                var increasePerUpgrade = maxTotalIncrease / slotData.HeadsUpgradeCount;
-                var newValue = saveData.HeadsChance + increasePerUpgrade;
-                saveData.HeadsChance = Math.Min(ArchipelagoConstants.MaxHeadsChance, newValue);
-                Log.Debug($"Received Heads Up! Chance: {saveData.HeadsChance:P1}");
+                var maxHeadsIncrease = ArchipelagoConstants.MaxHeadsChance - startingHeadsChance;
+                var headsIncreasePerUpgrade = slotData.HeadsUpgradeCount > 0 ? maxHeadsIncrease / slotData.HeadsUpgradeCount : 0;
+                saveData.HeadsChance = Math.Min(ArchipelagoConstants.MaxHeadsChance, startingHeadsChance + (saveData.HeadsUpCount * headsIncreasePerUpgrade));
+                Log.Debug($"Received Heads Up! Chance: {saveData.HeadsChance:P1} (Total: {saveData.HeadsUpCount})");
                 break;
                 
             case UFItem.FlipUp:
-                var maxTotalDecrease = ArchipelagoConstants.MaxFlipTime - ArchipelagoConstants.MinFlipTime;
-                var decreasePerUpgrade = maxTotalDecrease / slotData.FlipTimeUpgradeCount;
-                newValue = saveData.FlipTime - decreasePerUpgrade;
-                saveData.FlipTime = Math.Max(ArchipelagoConstants.MinFlipTime, newValue);
-                Log.Debug($"Received Flip Up! Time: {saveData.FlipTime:F2}s");
+                saveData.FlipUpCount++;
+                var maxFlipDecrease = ArchipelagoConstants.MaxFlipTime - ArchipelagoConstants.MinFlipTime;
+                var flipDecreasePerUpgrade = slotData.FlipTimeUpgradeCount > 0 ? maxFlipDecrease / slotData.FlipTimeUpgradeCount : 0;
+                saveData.FlipTime = Math.Max(ArchipelagoConstants.MinFlipTime, ArchipelagoConstants.MaxFlipTime - (saveData.FlipUpCount * flipDecreasePerUpgrade));
+                Log.Debug($"Received Flip Up! Time: {saveData.FlipTime:F2}s (Total: {saveData.FlipUpCount})");
                 break;
                 
             case UFItem.ComboUp:
-                maxTotalIncrease = ArchipelagoConstants.MaxComboMultiplier - ArchipelagoConstants.MinComboMultiplier;
-                increasePerUpgrade = maxTotalIncrease / slotData.ComboUpgradeCount;
-                newValue = saveData.ComboMult + increasePerUpgrade;
-                saveData.ComboMult = Math.Min(ArchipelagoConstants.MaxComboMultiplier, newValue);
-                Log.Debug($"Received Combo Up! Multiplier: {saveData.ComboMult:F2}x");
+                saveData.ComboUpCount++;
+                var maxComboIncrease = ArchipelagoConstants.MaxComboMultiplier - ArchipelagoConstants.MinComboMultiplier;
+                var comboIncreasePerUpgrade = slotData.ComboUpgradeCount > 0 ? maxComboIncrease / slotData.ComboUpgradeCount : 0;
+                saveData.ComboMult = Math.Min(ArchipelagoConstants.MaxComboMultiplier, ArchipelagoConstants.MinComboMultiplier + (saveData.ComboUpCount * comboIncreasePerUpgrade));
+                Log.Debug($"Received Combo Up! Multiplier: {saveData.ComboMult:F2}x (Total: {saveData.ComboUpCount})");
                 break;
                 
             case UFItem.CoinUp:
@@ -159,11 +159,11 @@ public class ItemHandler
                 
             case UFItem.AutoFlipUp:
                 saveData.HasAutoFlip = true;
-                maxTotalDecrease = ArchipelagoConstants.MaxAutoFlipAddition - ArchipelagoConstants.MinAutoFlipAddition;
-                decreasePerUpgrade = maxTotalDecrease / slotData.AutoFlipUpgradeCount;
-                newValue = saveData.AutoFlipAddition - decreasePerUpgrade;
-                saveData.AutoFlipAddition = Math.Max(ArchipelagoConstants.MinAutoFlipAddition, newValue);
-                Log.Debug($"Received Auto Flip Up! Addition: {saveData.AutoFlipAddition:F2}");
+                saveData.AutoFlipUpCount++;
+                var maxAutoFlipDecrease = ArchipelagoConstants.MaxAutoFlipAddition - ArchipelagoConstants.MinAutoFlipAddition;
+                var autoFlipDecreasePerUpgrade = slotData.AutoFlipUpgradeCount > 0 ? maxAutoFlipDecrease / slotData.AutoFlipUpgradeCount : 0;
+                saveData.AutoFlipAddition = Math.Max(ArchipelagoConstants.MinAutoFlipAddition, ArchipelagoConstants.MaxAutoFlipAddition - (saveData.AutoFlipUpCount * autoFlipDecreasePerUpgrade));
+                Log.Debug($"Received Auto Flip Up! Addition: {saveData.AutoFlipAddition:F2} (Total: {saveData.AutoFlipUpCount})");
                 break;
                 
             case UFItem.TailsTrap:
@@ -182,8 +182,8 @@ public class ItemHandler
                 break;
                 
             case UFItem.SlowTrap:
-                saveData.QueuedSlowTraps++;
-                Log.Debug($"Received Slow Trap! Queued: {saveData.QueuedSlowTraps}");
+                    saveData.QueuedSlowTraps++;
+                    Log.Debug($"Received Slow Trap! Queued: {saveData.QueuedSlowTraps}");
                 break;
                 
             case UFItem.Money:

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Models;
 using HarmonyLib;
 
 namespace UnfairFlipsAPMod;
@@ -18,12 +19,19 @@ public class ShopHandler
      * Control which buttons can be clicked through the money cap alone to avoid saving extra data
      */
 
-    private static List<long> scoutedLocations = [];
+    private static readonly Dictionary<long, ScoutedItemInfo> scoutedLocations = new();
     private static readonly Dictionary<ShopButton, long> currentLocationForButton = new();
     
     [HarmonyPatch(typeof(ShopButton))]
     public class ShopButton_Patch
     {
+        [HarmonyPatch("Start")]
+        [HarmonyPostfix]
+        public static void Start_Postfix(ShopButton __instance)
+        {
+            __instance.gameObject.AddComponent<ShopButtonHoverHandler>();
+        }
+
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         public static bool Update_Prefix(ShopButton __instance)
@@ -44,11 +52,19 @@ public class ShopHandler
                     if (UnfairFlipsAPMod.ArchipelagoHandler.IsLocationChecked(locationId))
                         continue;
 
-                    if (!scoutedLocations.Contains(locationId))
+                    var hoverHandler = __instance.GetComponent<ShopButtonHoverHandler>();
+
+                    if (!scoutedLocations.ContainsKey(locationId))
                     {
-                        var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
-                        scoutedLocations.Add(locationId);
-                        var usefulText = info.Flags.HasFlag(ItemFlags.Advancement) ? " (Helpful!)" : "";
+                        var shouldHint = !UnfairFlipsAPMod.SaveDataHandler.SaveData.HintedLocationIds.Contains(locationId);
+                        var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId, shouldHint);
+                        scoutedLocations[locationId] = info;
+
+                        if (shouldHint)
+                        {
+                            UnfairFlipsAPMod.SaveDataHandler.SaveData.HintedLocationIds.Add(locationId);
+                            UnfairFlipsAPMod.SaveDataHandler.SaveGame();
+                        }
 
                         __instance.currentCost = (int)Math.Ceiling(
                             Math.Pow(10, gateIndex) *
@@ -56,8 +72,20 @@ public class ShopHandler
                         );
 
                         __instance.text.text =
-                            $"{info.ItemDisplayName}{usefulText}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                            $"{info.ItemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
                     }
+
+                    if (hoverHandler != null && scoutedLocations.TryGetValue(locationId, out var scoutInfo))
+                    {
+                        var ap = UnfairFlipsAPMod.ArchipelagoHandler;
+                        var itemName = scoutInfo.ItemDisplayName;
+                        var playerName = ap.GetPlayerName(scoutInfo.Player);
+                        var (rarityName, rarityColor) = GetRarityInfo(scoutInfo.Flags);
+                        
+                        hoverHandler.tooltipText = $"Item: {itemName}\nFor: {playerName}\nTier: <color={rarityColor}>{rarityName}</color>";
+                    }
+                    
+                    __instance.text.overflowMode = TMPro.TextOverflowModes.Ellipsis;
 
                     __instance.button.interactable =
                         UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= __instance.currentCost;
@@ -70,6 +98,18 @@ public class ShopHandler
             currentLocationForButton.Remove(__instance);
             __instance.gameObject.SetActive(false);
             return false;
+        }
+
+        private static (string name, string color) GetRarityInfo(ItemFlags flags)
+        {
+            if (ItemFlags.Advancement.HasFlag(flags))
+                return ("Progression", "#AF99EF"); // Plum/Purple
+            if (ItemFlags.Trap.HasFlag(flags))
+                return ("Trap", "#EE0000"); // Red
+            if (ItemFlags.NeverExclude.HasFlag(flags))
+                return ("Useful", "#6495ED"); // Blue
+            
+            return ("Filler", "#FFFFFF"); // White
         }
         
         [HarmonyPatch("Buy")]

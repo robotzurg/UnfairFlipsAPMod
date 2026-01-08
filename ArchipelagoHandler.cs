@@ -166,10 +166,33 @@ namespace UnfairFlipsAPMod
             }
 
             Log.Message("Resyncing items from server...");
+            
+            // Reset incremental stats before resyncing to ensure idempotency
+            var saveData = UnfairFlipsAPMod.SaveDataHandler.SaveData;
+            saveData.ItemIndex = 0;
+            saveData.Fairness = 0;
+            saveData.HeadsUpCount = 0;
+            saveData.FlipUpCount = 0;
+            saveData.ComboUpCount = 0;
+            saveData.AutoFlipUpCount = 0;
+            saveData.CoinUpgradeLevel = 0;
+            saveData.CoinValue = 1;
+            saveData.HasAutoFlip = false;
+            
+            // Reset derived values to base
+            saveData.HeadsChance = (float)UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100;
+            saveData.FlipTime = ArchipelagoConstants.MaxFlipTime;
+            saveData.ComboMult = ArchipelagoConstants.MinComboMultiplier;
+            saveData.AutoFlipAddition = ArchipelagoConstants.MaxAutoFlipAddition;
+
             var items = Session.Items.AllItemsReceived;
             for (int i = 0; i < items.Count; i++)
             {
-                UnfairFlipsAPMod.ItemHandler.HandleItem(i, items[i], false);
+                if ((UFItem)items[i].ItemId != UFItem.Money && (UFItem)items[i].ItemId != UFItem.MoreMoney &&
+                    (UFItem)items[i].ItemId != UFItem.BigMoney)
+                {
+                    UnfairFlipsAPMod.ItemHandler.HandleItem(i, items[i], false);
+                }
             }
             UnfairFlipsAPMod.SaveDataHandler.SaveGame();
             Log.Message($"Resync complete. Processed up to item {items.Count}");
@@ -228,6 +251,33 @@ namespace UnfairFlipsAPMod
         
         private void OnMessageReceived(LogMessage message)
         {
+            if (message.GetType().Name.Contains("Hint"))
+            {
+                try
+                {
+                    var findingPlayerProp = message.GetType().GetProperty("FindingPlayer");
+                    var itemProp = message.GetType().GetProperty("Item");
+                    if (findingPlayerProp != null && itemProp != null)
+                    {
+                        var findingPlayer = findingPlayerProp.GetValue(message);
+                        var item = itemProp.GetValue(message);
+                        if (findingPlayer != null && item != null)
+                        {
+                            var slotProp = findingPlayer.GetType().GetProperty("Slot");
+                            var locationProp = item.GetType().GetProperty("Location");
+                            if (slotProp != null && locationProp != null)
+                            {
+                                var slotValue = Convert.ToInt32(slotProp.GetValue(findingPlayer));
+                                var locationValue = Convert.ToInt64(locationProp.GetValue(item));
+                                if (slotValue == Session.ConnectionInfo.Slot && locationValue >= 0x200)
+                                    return;
+                            }
+                        }
+                    }
+                }
+                catch (Exception) { /* ignore */ }
+            }
+
             string messageStr;
             if (message.Parts.Length == 1)
             {
@@ -339,9 +389,19 @@ namespace UnfairFlipsAPMod
             UnfairFlipsAPMod.GameHandler.Kill();
         }
 
-        public ScoutedItemInfo TryScoutLocation(long locationId)
+        public ScoutedItemInfo TryScoutLocation(long locationId, bool createHint = false)
         {
-            return Session.Locations.ScoutLocationsAsync(locationId)?.Result?.Values.First();
+            return Session.Locations.ScoutLocationsAsync(createHint, locationId)?.Result?.Values.First();
+        }
+
+        public string GetPlayerName(int player)
+        {
+            return Session.Players.GetPlayerAlias(player) ?? $"Player {player}";
+        }
+
+        public string GetLocationName(long locationId)
+        {
+            return Session.Locations.GetLocationNameFromId(locationId) ?? $"Location {locationId}";
         }
 
         public void DisplayItemCounts()
@@ -378,6 +438,16 @@ namespace UnfairFlipsAPMod
             {
                 AddMessageToGameLog($"{kvp.Key}: {kvp.Value}");
             }
+        }
+
+        public void DisplayAutoFlipMsg()
+        {
+            AddMessageToGameLog($"<color=#FAFAD2>Autoflip Time Is {UnfairFlipsAPMod.SaveDataHandler.SaveData.AutoFlipAddition:F} Seconds.</color>");
+        }
+        
+        public void DisplayResyncMsg()
+        {
+            AddMessageToGameLog($"<color=#00FF7F>Resyncing items from Archipelago.</color>");
         }
     }
 }

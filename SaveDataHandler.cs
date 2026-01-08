@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime;
@@ -23,6 +24,11 @@ public class CustomSaveData
     public int FlipCount;
     public bool HasAutoFlip;
 
+    public int HeadsUpCount;
+    public int FlipUpCount;
+    public int ComboUpCount;
+    public int AutoFlipUpCount;
+
     [SerializeField]
     private string playerMoney = "0";
 
@@ -38,6 +44,7 @@ public class CustomSaveData
     public int QueuedPennyTraps;
     public int QueuedTaxTraps;
     public int QueuedSlowTraps;
+    public List<long> HintedLocationIds = new();
 }
 
 public class SaveDataHandler
@@ -94,6 +101,11 @@ public class SaveDataHandler
         Log.Debug("Creating new game...");
         SaveData = new CustomSaveData();
         SaveData.Fairness = 0;
+        SaveData.HeadsUpCount = 0;
+        SaveData.FlipUpCount = 0;
+        SaveData.ComboUpCount = 0;
+        SaveData.AutoFlipUpCount = 0;
+        
         SaveData.HeadsChance = (float)UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100;
         SaveData.FlipTime = ArchipelagoConstants.MaxFlipTime;
         SaveData.ComboMult = ArchipelagoConstants.MinComboMultiplier;
