@@ -143,11 +143,18 @@ namespace UnfairFlipsAPMod
         {
             try
             {
+                var currentItemIndex = UnfairFlipsAPMod.SaveDataHandler?.SaveData?.ItemIndex ?? 0;
+
                 while (helper.Any())
                 {
-                    var itemIndex = helper.Index;
                     var item = helper.DequeueItem();
-                    UnfairFlipsAPMod.ItemHandler.HandleItem(itemIndex, item);
+                    var itemIndex = helper.Index - 1;
+
+                    // Only process items we haven't seen yet
+                    if (itemIndex >= currentItemIndex)
+                    {
+                        UnfairFlipsAPMod.ItemHandler.HandleItem(itemIndex, item);
+                    }
                 }
             }
             catch (Exception ex)
@@ -188,14 +195,20 @@ namespace UnfairFlipsAPMod
             var items = Session.Items.AllItemsReceived;
             for (int i = 0; i < items.Count; i++)
             {
-                if ((UFItem)items[i].ItemId != UFItem.Money && (UFItem)items[i].ItemId != UFItem.MoreMoney &&
-                    (UFItem)items[i].ItemId != UFItem.BigMoney)
+                var itemType = (UFItem)items[i].ItemId;
+                if (itemType == UFItem.Money || itemType == UFItem.MoreMoney || itemType == UFItem.BigMoney)
+                {
+                    if (i >= saveData.ItemIndex)
+                        saveData.ItemIndex = i + 1;
+                }
+                else
                 {
                     UnfairFlipsAPMod.ItemHandler.HandleItem(i, items[i], false);
                 }
             }
+
             UnfairFlipsAPMod.SaveDataHandler.SaveGame();
-            Log.Message($"Resync complete. Processed up to item {items.Count}");
+            Log.Message($"Resync complete. Processed up to item {saveData.ItemIndex}");
         }
 
         public void Release()

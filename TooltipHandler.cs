@@ -114,8 +114,6 @@ namespace UnfairFlipsAPMod
                 Vector3[] corners = new Vector3[4];
                 currentTarget.GetWorldCorners(corners);
                 
-                // corners[0] = bottom-left, [1] = top-left, [2] = top-right, [3] = bottom-right
-                // We want to center it horizontally under the button
                 float centerX = (corners[0].x + corners[3].x) / 2f;
                 float bottomY = corners[0].y;
 

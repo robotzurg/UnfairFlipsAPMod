@@ -73,7 +73,6 @@ public class SaveDataHandler
         UnfairFlipsAPMod.ItemHandler.FlushQueue();
     }
     
-    // ReSharper disable Unity.PerformanceAnalysis
     private void LoadGame()
     {
         Log.Debug("Loading game...");
@@ -112,6 +111,8 @@ public class SaveDataHandler
         SaveData.CoinValue = 1;
         SaveData.CoinUpgradeLevel = 0;
         SaveData.AutoFlipAddition = ArchipelagoConstants.MaxAutoFlipAddition;
+        SaveData.ItemIndex = 0;
+        SaveData.PlayerMoney = 0;
         SaveGame();
     }
 

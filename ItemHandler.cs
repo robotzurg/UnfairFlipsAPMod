@@ -65,14 +65,21 @@ public class ItemHandler
                 cachedItems.Enqueue((index, item));
                 return;
             }
-            
+
+            // Check if this item was already processed before caching
+            if (index < UnfairFlipsAPMod.SaveDataHandler.SaveData.ItemIndex)
+            {
+                Log.Debug($"Item {index} already processed (current: {UnfairFlipsAPMod.SaveDataHandler.SaveData.ItemIndex}), skipping");
+                return;
+            }
+
             // Process any cached items first
             if (cachedItems.Count > 0)
             {
                 Log.Message($"Processing {cachedItems.Count} cached items...");
                 FlushQueue();
             }
-            
+
             // Now process the current item
             ProcessItem(index, item, save);
         }
@@ -117,7 +124,7 @@ public class ItemHandler
             return;
         }
         
-        saveData.ItemIndex = index + 1;
+        saveData.ItemIndex++;
         
         switch ((UFItem)item.ItemId)
         {
@@ -182,8 +189,8 @@ public class ItemHandler
                 break;
                 
             case UFItem.SlowTrap:
-                    saveData.QueuedSlowTraps++;
-                    Log.Debug($"Received Slow Trap! Queued: {saveData.QueuedSlowTraps}");
+                saveData.QueuedSlowTraps++;
+                Log.Debug($"Received Slow Trap! Queued: {saveData.QueuedSlowTraps}");
                 break;
                 
             case UFItem.Money:
