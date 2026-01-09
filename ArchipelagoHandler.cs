@@ -150,11 +150,8 @@ namespace UnfairFlipsAPMod
                     var item = helper.DequeueItem();
                     var itemIndex = helper.Index - 1;
 
-                    // Only process items we haven't seen yet
                     if (itemIndex >= currentItemIndex)
-                    {
                         UnfairFlipsAPMod.ItemHandler.HandleItem(itemIndex, item);
-                    }
                 }
             }
             catch (Exception ex)
@@ -163,54 +160,7 @@ namespace UnfairFlipsAPMod
                 throw;
             }
         }
-
-        public void ResyncItems()
-        {
-            if (Session == null || !IsConnected)
-            {
-                Log.Warning("Cannot resync items: Not connected to Archipelago");
-                return;
-            }
-
-            Log.Message("Resyncing items from server...");
-            
-            // Reset incremental stats before resyncing to ensure idempotency
-            var saveData = UnfairFlipsAPMod.SaveDataHandler.SaveData;
-            saveData.ItemIndex = 0;
-            saveData.Fairness = 0;
-            saveData.HeadsUpCount = 0;
-            saveData.FlipUpCount = 0;
-            saveData.ComboUpCount = 0;
-            saveData.AutoFlipUpCount = 0;
-            saveData.CoinUpgradeLevel = 0;
-            saveData.CoinValue = 1;
-            saveData.HasAutoFlip = false;
-            
-            // Reset derived values to base
-            saveData.HeadsChance = (float)UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100;
-            saveData.FlipTime = ArchipelagoConstants.MaxFlipTime;
-            saveData.ComboMult = ArchipelagoConstants.MinComboMultiplier;
-            saveData.AutoFlipAddition = ArchipelagoConstants.MaxAutoFlipAddition;
-
-            var items = Session.Items.AllItemsReceived;
-            for (int i = 0; i < items.Count; i++)
-            {
-                var itemType = (UFItem)items[i].ItemId;
-                if (itemType == UFItem.Money || itemType == UFItem.MoreMoney || itemType == UFItem.BigMoney)
-                {
-                    if (i >= saveData.ItemIndex)
-                        saveData.ItemIndex = i + 1;
-                }
-                else
-                {
-                    UnfairFlipsAPMod.ItemHandler.HandleItem(i, items[i], false);
-                }
-            }
-
-            UnfairFlipsAPMod.SaveDataHandler.SaveGame();
-            Log.Message($"Resync complete. Processed up to item {saveData.ItemIndex}");
-        }
-
+        
         public void Release()
         {
             Session.SetGoalAchieved();

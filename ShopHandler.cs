@@ -71,8 +71,12 @@ public class ShopHandler
                             UnityEngine.Random.Range(0.6f, 0.9f)
                         );
 
+                        var itemDisplayName = info.ItemDisplayName;
+                        var itemNameLength = itemDisplayName.Length;
+                        if (itemNameLength > 23)
+                            itemDisplayName = itemDisplayName[..23] + "...";
                         __instance.text.text =
-                            $"{info.ItemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                            $"{itemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
                     }
 
                     if (hoverHandler != null && scoutedLocations.TryGetValue(locationId, out var scoutInfo))
@@ -85,7 +89,8 @@ public class ShopHandler
                         hoverHandler.tooltipText = $"Item: {itemName}\nFor: {playerName}\nTier: <color={rarityColor}>{rarityName}</color>";
                     }
                     
-                    __instance.text.overflowMode = TMPro.TextOverflowModes.Ellipsis;
+                    
+                    __instance.text.overflowMode = TMPro.TextOverflowModes.Truncate;
 
                     __instance.button.interactable =
                         UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= __instance.currentCost;

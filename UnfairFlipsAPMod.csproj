@@ -45,5 +45,14 @@
 		<Copy
 				SourceFiles="$(TargetPath)"
 				DestinationFiles="$(STEAM_PATH)\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod\$(TargetFileName)" />
+		<Copy
+				SourceFiles="$(TargetPath)"
+				DestinationFolder="$(ProjectDir)Package\Unfair_Flips_Archipelago"
+				OverwriteReadOnlyFiles="true" />
+		<Copy
+				SourceFiles="$(ProjectDir)../README.md"
+				DestinationFolder="$(ProjectDir)Package"
+				OverwriteReadOnlyFiles="true" />
+		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(ProjectDir)Unfair_Flips_Archipelago.zip' -Force&quot;" />
 	</Target>
 </Project>

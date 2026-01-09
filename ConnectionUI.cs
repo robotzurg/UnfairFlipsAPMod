@@ -63,18 +63,15 @@ namespace UnfairFlipsAPMod
 
         private void Update()
         {
-            // Toggle UI with F1 key
             if (Input.GetKeyDown(KeyCode.F1))
             {
                 ToggleUI();
             }
 
-            // There might be a better place to put this lol
-            // - Jeff
             if (Input.GetKeyDown(KeyCode.F5))
             {
                 Log.Message("F5 pressed - resyncing items...");
-                apHandler.ResyncItems();
+                UnfairFlipsAPMod.ItemHandler.FlushQueue();
                 UnfairFlipsAPMod.ArchipelagoHandler.DisplayResyncMsg();
             }
         }
