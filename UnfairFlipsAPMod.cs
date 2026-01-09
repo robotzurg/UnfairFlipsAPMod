@@ -31,7 +31,7 @@ namespace UnfairFlipsAPMod
             LoginHandler = gameObject.AddComponent<LoginHandler>();
             LoginHandler.CreateUI(ArchipelagoHandler);
             GameHandler = gameObject.AddComponent<GameHandler>();
-            ItemHandler = new ItemHandler();
+            ItemHandler = gameObject.AddComponent<ItemHandler>();
             SaveDataHandler = new SaveDataHandler();
             gameObject.AddComponent<CounterPatches>();
             

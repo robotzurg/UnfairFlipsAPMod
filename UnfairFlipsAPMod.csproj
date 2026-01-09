@@ -50,7 +50,7 @@
 				DestinationFolder="$(ProjectDir)Package\Unfair_Flips_Archipelago"
 				OverwriteReadOnlyFiles="true" />
 		<Copy
-				SourceFiles="$(ProjectDir)../README.md"
+				SourceFiles="$(ProjectDir)README.md"
 				DestinationFolder="$(ProjectDir)Package"
 				OverwriteReadOnlyFiles="true" />
 		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(ProjectDir)Unfair_Flips_Archipelago.zip' -Force&quot;" />

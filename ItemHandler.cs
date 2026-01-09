@@ -25,7 +25,7 @@ public enum UFItem
     BigMoney = 0x22,
 }
 
-public class ItemHandler
+public class ItemHandler : MonoBehaviour
 {
     private Queue<(int, ItemInfo)> cachedItems = new Queue<(int, ItemInfo)>();
 
@@ -216,6 +216,14 @@ public class ItemHandler
         if (save)
             UnfairFlipsAPMod.SaveDataHandler.SaveGame();
     }
-    
-    
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            Log.Message("F5 pressed - resyncing items...");
+            UnfairFlipsAPMod.ItemHandler.FlushQueue();
+            UnfairFlipsAPMod.ArchipelagoHandler.DisplayResyncMsg();
+        }
+    }
 }

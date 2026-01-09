@@ -73,6 +73,7 @@ namespace UnfairFlipsAPMod
             Session.Socket.ErrorReceived += OnError;
             Session.Socket.SocketClosed += OnSocketClosed;
             Session.Socket.PacketReceived += PacketReceived;
+            Session.Items.ItemReceived += ItemReceived;
         }
         
         public void Connect()
@@ -97,9 +98,6 @@ namespace UnfairFlipsAPMod
                 
                 if (seed != null)
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
-                
-                Log.Message("Subscribing to item events...");
-                Session.Items.ItemReceived += ItemReceived;
             
                 FindObjectOfType<PanelManager>().SetPanelArrangement(2);
                 UnfairFlipsAPMod.GameHandler.InitOnConnect();
