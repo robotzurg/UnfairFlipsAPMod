@@ -107,11 +107,11 @@ public class ShopHandler
 
         private static (string name, string color) GetRarityInfo(ItemFlags flags)
         {
-            if (ItemFlags.Advancement.HasFlag(flags))
+            if (flags.HasFlag(ItemFlags.Advancement))
                 return ("Progression", "#AF99EF"); // Plum/Purple
-            if (ItemFlags.Trap.HasFlag(flags))
+            if (flags.HasFlag(ItemFlags.Trap))
                 return ("Trap", "#EE0000"); // Red
-            if (ItemFlags.NeverExclude.HasFlag(flags))
+            if (flags.HasFlag(ItemFlags.NeverExclude))
                 return ("Useful", "#6495ED"); // Blue
             
             return ("Filler", "#FFFFFF"); // White
