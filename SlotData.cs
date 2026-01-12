@@ -7,6 +7,7 @@ public class SlotData
     public readonly int RequiredHeads;
     public readonly int StartingHeadsChance;
     public readonly bool DeathLink;
+    public readonly bool EnergyLink;
     public readonly int DeathLinkChance;
     public readonly int DeathLinkMinStreak;
     public readonly int HeadsUpgradeCount;
@@ -22,6 +23,8 @@ public class SlotData
             StartingHeadsChance = (int)(long)startingHeadsChance;
         if (slotDict.TryGetValue("DeathLink", out var deathLink))
             DeathLink = (int)(long)deathLink == 1;
+        if (slotDict.TryGetValue("EnergyLink", out var energyLink))
+            EnergyLink = (int)(long)energyLink == 1;
         if (slotDict.TryGetValue("DeathLinkChance", out var deathLinkChance))
             DeathLinkChance = (int)(long)deathLinkChance;
         if (slotDict.TryGetValue("DeathLinkMinStreak", out var deathLinkMinStreak))

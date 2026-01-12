@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using Archipelago.MultiClient.Net.Colors;
@@ -35,6 +36,8 @@ namespace UnfairFlipsAPMod
         private string lastDeath;
         private DateTime lastDeathLinkTime = DateTime.Now;
         private readonly Random random = new();
+        private BigInteger energyPool;
+        private string energyLinkKey;
         
         private readonly string[] deathMessages =
         [
@@ -98,6 +101,13 @@ namespace UnfairFlipsAPMod
                 
                 if (seed != null)
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
+
+                if (UnfairFlipsAPMod.SlotData.EnergyLink)
+                {
+                    energyLinkKey = "EnergyLink" + Session.ConnectionInfo.Team;
+                    Session.DataStorage[Scope.Global, energyLinkKey].Initialize(0);
+                    Session.DataStorage[Scope.Global, energyLinkKey].OnValueChanged += EnergyLinkChanged;
+                }
             
                 FindObjectOfType<PanelManager>().SetPanelArrangement(2);
                 UnfairFlipsAPMod.GameHandler.InitOnConnect();
@@ -409,6 +419,17 @@ namespace UnfairFlipsAPMod
         public void DisplayResyncMsg()
         {
             AddMessageToGameLog($"<color=#00FF7F>Resyncing items from Archipelago.</color>");
+        }
+        
+        private void EnergyLinkChanged(JToken originalValue, JToken newValue, Dictionary<string, JToken> additionalArguments)
+        {
+            energyPool = JObject.FromObject(newValue).Value<BigInteger>();
+        }
+
+        public void UpdateEnergyLink(BigInteger amount)
+        {
+            Session.DataStorage[Scope.Global, energyLinkKey] += amount * 100;
+            AddMessageToGameLog($"<color=#00FF7F>Added {amount} energy to the pool!</color>");
         }
     }
 }

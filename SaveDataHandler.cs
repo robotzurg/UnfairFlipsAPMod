@@ -37,7 +37,12 @@ public class CustomSaveData
     public BigInteger PlayerMoney
     {
         get => BigInteger.Parse(playerMoney);
-        set => playerMoney = value > MaxMoney ? MaxMoney.ToString() : value.ToString();
+        set
+        {
+            if (UnfairFlipsAPMod.SlotData.EnergyLink && value > MaxMoney)
+                UnfairFlipsAPMod.ArchipelagoHandler.UpdateEnergyLink(value - MaxMoney);
+            playerMoney = value > MaxMoney ? MaxMoney.ToString() : value.ToString();
+        } 
     }
     
     public int QueuedTailsTraps;

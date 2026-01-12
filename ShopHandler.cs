@@ -84,9 +84,10 @@ public class ShopHandler
                         var ap = UnfairFlipsAPMod.ArchipelagoHandler;
                         var itemName = scoutInfo.ItemDisplayName;
                         var playerName = ap.GetPlayerName(scoutInfo.Player);
+                        var gameName = scoutInfo.ItemGame;
                         var (rarityName, rarityColor) = GetRarityInfo(scoutInfo.Flags);
                         
-                        hoverHandler.tooltipText = $"Item: {itemName}\nFor: {playerName}\nTier: <color={rarityColor}>{rarityName}</color>";
+                        hoverHandler.tooltipText = $"Item: {itemName}\nFor: {playerName} in {gameName}\nTier: <color={rarityColor}>{rarityName}</color>";
                     }
                     
                     
