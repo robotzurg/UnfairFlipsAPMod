@@ -87,9 +87,8 @@ public class ShopHandler
                         var gameName = scoutInfo.ItemGame;
                         var (rarityName, rarityColor) = GetRarityInfo(scoutInfo.Flags);
                         
-                        hoverHandler.tooltipText = $"Item: {itemName}\nFor: {playerName} in {gameName}\nTier: <color={rarityColor}>{rarityName}</color>";
+                        hoverHandler.tooltipText = $"{itemName}\nfor {playerName} in {gameName}\nTier: <color={rarityColor}>{rarityName}</color>";
                     }
-                    
                     
                     __instance.text.overflowMode = TMPro.TextOverflowModes.Truncate;
 
@@ -156,8 +155,7 @@ public class ShopHandler
         {
             return false;
         }
-
-                
+        
         [HarmonyPatch("IncreaseFlipBaseWorth")]
         [HarmonyPrefix]
         public static bool IncreaseFlipBaseWorth()

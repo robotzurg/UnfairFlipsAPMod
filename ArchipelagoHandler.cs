@@ -394,8 +394,7 @@ namespace UnfairFlipsAPMod
             foreach (var item in items)
             {
                 var itemName = item.ItemName;
-                // The $ ones aren't really worth showing, so we can just exclude them
-                if (itemName == "$" || itemName == "$$" || itemName == "$$$")
+                if (itemName is "$" or "$$" or "$$$")
                     continue;
                     
                 if (itemCounts.ContainsKey(itemName))

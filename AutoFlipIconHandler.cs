@@ -9,18 +9,29 @@ public class AutoFlipIconHandler
 {
     private static Sprite _autoFlipOnSprite;
     private static Sprite _autoFlipOffSprite;
+    private static GameObject _autoFlipButtonObject;
+    public static bool IsVisible
+    {
+        get => _autoFlipButtonObject != null && _autoFlipButtonObject.activeSelf;
+        set
+        {
+            if (_autoFlipButtonObject != null && _autoFlipButtonObject.activeSelf != value)
+                _autoFlipButtonObject.SetActive(value);
+        }
+    }
+
     public static bool IsAutoFlipEnabled;
     
     public static void CreateButton() {
         var reference = Object.FindObjectOfType<AudioButton>().gameObject;
         var referenceParent = reference.transform.parent;
         
-        var autoFlipButtonObject = Object.Instantiate(reference, referenceParent);
-        autoFlipButtonObject.name = "AutoFlipButton";
+        _autoFlipButtonObject = Object.Instantiate(reference, referenceParent);
+        _autoFlipButtonObject.name = "AutoFlipButton";
         
-        Object.Destroy(autoFlipButtonObject.GetComponent<AudioButton>());
+        Object.Destroy(_autoFlipButtonObject.GetComponent<AudioButton>());
         
-        var image = autoFlipButtonObject.GetComponent<Image>();
+        var image = _autoFlipButtonObject.GetComponent<Image>();
         var imagePath = Path.Combine(Paths.PluginPath, "UnfairFlipsAPMod/AutoFlipIcon.png");
         var imageData = File.ReadAllBytes(imagePath);
         var texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
@@ -45,8 +56,8 @@ public class AutoFlipIconHandler
         
         IsAutoFlipEnabled = false;
 
-        autoFlipButtonObject.transform.localPosition = new Vector3(250f, 400f, 0f);
-        var autoFlipButton = autoFlipButtonObject.GetComponent<Button>();
+        _autoFlipButtonObject.transform.localPosition = new Vector3(250f, 400f, 0f);
+        var autoFlipButton = _autoFlipButtonObject.GetComponent<Button>();
         autoFlipButton.onClick = new Button.ButtonClickedEvent();
         autoFlipButton.onClick.AddListener(() =>
         {
@@ -56,9 +67,9 @@ public class AutoFlipIconHandler
                 GameHandler.QueueNextAutoFlip();
                 UnfairFlipsAPMod.ArchipelagoHandler.DisplayAutoFlipMsg();
             }
-                
-            
             image.sprite = IsAutoFlipEnabled ? _autoFlipOnSprite : _autoFlipOffSprite;
         });
+        
+        IsVisible = UnfairFlipsAPMod.SaveDataHandler?.SaveData?.HasAutoFlip ?? false;
     }
 }

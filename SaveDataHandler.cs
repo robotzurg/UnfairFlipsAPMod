@@ -87,6 +87,8 @@ public class SaveDataHandler
             using StreamReader reader = new StreamReader(fs);
             var json = reader.ReadToEnd();
             SaveData = JsonUtility.FromJson<CustomSaveData>(json);
+            if (SaveData.HasAutoFlip)
+                AutoFlipIconHandler.IsVisible = true;
         }
         catch (Exception ex)
         {

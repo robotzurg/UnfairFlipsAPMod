@@ -166,6 +166,7 @@ public class ItemHandler : MonoBehaviour
                 
             case UFItem.AutoFlipUp:
                 saveData.HasAutoFlip = true;
+                AutoFlipIconHandler.IsVisible = true;
                 saveData.AutoFlipUpCount++;
                 var maxAutoFlipDecrease = ArchipelagoConstants.MaxAutoFlipAddition - ArchipelagoConstants.MinAutoFlipAddition;
                 var autoFlipDecreasePerUpgrade = slotData.AutoFlipUpgradeCount > 0 ? maxAutoFlipDecrease / slotData.AutoFlipUpgradeCount : 0;
@@ -194,18 +195,27 @@ public class ItemHandler : MonoBehaviour
                 break;
                 
             case UFItem.Money:
-                saveData.PlayerMoney += 1 * saveData.CoinValue;
-                Log.Debug($"Received Money! Total: {saveData.PlayerMoney}");
+                var money = saveData.MaxMoney / 1000;
+                if (money == 0)
+                    money = 1;
+                saveData.PlayerMoney += money;
+                Log.Debug($"Received {Mathy.CentsToDollarString(money)}!");
                 break;
                 
             case UFItem.MoreMoney:
-                saveData.PlayerMoney += 10 * saveData.CoinValue;
-                Log.Debug($"Received More Money! Total: {saveData.PlayerMoney}");
+                money = saveData.MaxMoney / 500;
+                if (money == 0)
+                    money = 1;
+                saveData.PlayerMoney += money;
+                Log.Debug($"Received {Mathy.CentsToDollarString(money)}!");
                 break;
                 
             case UFItem.BigMoney:
-                saveData.PlayerMoney += 100 * saveData.CoinValue;
-                Log.Debug($"Received Big Money! Total: {saveData.PlayerMoney}");
+                money = saveData.MaxMoney / 100;
+                if (money == 0)
+                    money = 1;
+                saveData.PlayerMoney += money;
+                Log.Debug($"Received {Mathy.CentsToDollarString(money)}!");
                 break;
                 
             default:
