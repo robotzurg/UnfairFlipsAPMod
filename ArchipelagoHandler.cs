@@ -14,6 +14,7 @@ using System.Threading;
 using Archipelago.MultiClient.Net.Colors;
 using Archipelago.MultiClient.Net.Converters;
 using Archipelago.MultiClient.Net.Models;
+using BreakInfinity;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Random = System.Random;
@@ -36,7 +37,6 @@ namespace UnfairFlipsAPMod
         private string lastDeath;
         private DateTime lastDeathLinkTime = DateTime.Now;
         private readonly Random random = new();
-        private BigInteger energyPool;
         private string energyLinkKey;
         
         private readonly string[] deathMessages =
@@ -102,12 +102,12 @@ namespace UnfairFlipsAPMod
                 if (seed != null)
                     UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
 
-                if (UnfairFlipsAPMod.SlotData.EnergyLink)
-                {
-                    energyLinkKey = "EnergyLink" + Session.ConnectionInfo.Team;
-                    Session.DataStorage[Scope.Global, energyLinkKey].Initialize(0);
-                    Session.DataStorage[Scope.Global, energyLinkKey].OnValueChanged += EnergyLinkChanged;
-                }
+                // if (UnfairFlipsAPMod.SlotData.EnergyLink)
+                // {
+                //     energyLinkKey = "EnergyLink" + Session.ConnectionInfo.Team;
+                //     Session.DataStorage[Scope.Global, energyLinkKey].Initialize(0);
+                //     Session.DataStorage[Scope.Global, energyLinkKey].OnValueChanged += EnergyLinkChanged;
+                // }
             
                 FindObjectOfType<PanelManager>().SetPanelArrangement(2);
                 UnfairFlipsAPMod.GameHandler.InitOnConnect();
@@ -420,15 +420,15 @@ namespace UnfairFlipsAPMod
             AddMessageToGameLog($"<color=#00FF7F>Resyncing items from Archipelago.</color>");
         }
         
-        private void EnergyLinkChanged(JToken originalValue, JToken newValue, Dictionary<string, JToken> additionalArguments)
-        {
-            energyPool = JObject.FromObject(newValue).Value<BigInteger>();
-        }
-
-        public void UpdateEnergyLink(BigInteger amount)
-        {
-            Session.DataStorage[Scope.Global, energyLinkKey] += amount * 100;
-            AddMessageToGameLog($"<color=#00FF7F>Added {amount} energy to the pool!</color>");
-        }
+        // private void EnergyLinkChanged(JToken originalValue, JToken newValue, Dictionary<string, JToken> additionalArguments)
+        // {
+        //     var energyPool = JObject.FromObject(newValue).Value<string>();
+        // }
+        //
+        // public void UpdateEnergyLink(BigDouble amount)
+        // {
+        //     Session.DataStorage[Scope.Global, energyLinkKey] += amount * 10;
+        //     AddMessageToGameLog($"<color=#00FF7F>Added {amount} energy to the pool!</color>");
+        // }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Numerics;
+using BreakInfinity;
 using HarmonyLib;
 using Tweens;
 using Tweens.Core;
@@ -106,7 +107,7 @@ public class GameHandler : MonoBehaviour
         FindObjectOfType<CoinFlip>().SetCoinType(coinType);
     }
 
-    private static BigInteger _flipMoneyResult;
+    private static BigDouble _flipMoneyResult;
     [HarmonyPatch(typeof(FlipResultMessage))]
     private class FlipResultMessage_Patch
     {
@@ -312,11 +313,11 @@ public class GameHandler : MonoBehaviour
                     yield return null;
                 }
                 coinFlip.transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
-                var money = SaveManager.SaveData.CoinValue * new BigInteger(Math.Ceiling(Math.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
+                var money = SaveManager.SaveData.CoinValue * new BigDouble(BigDouble.Ceiling(BigDouble.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
                 if (SaveManager.SaveData.QueuedPennyTraps > 0)
                 {
                     SaveManager.SaveData.QueuedPennyTraps--;
-                    money = 1 * new BigInteger(Math.Ceiling(Math.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
+                    money = 1 * new BigDouble(BigDouble.Ceiling(BigDouble.Pow(SaveManager.SaveData.ComboMult, coinFlip.headsComboNum - 1)));
                 }
                 if (SaveManager.SaveData.QueuedTaxTraps > 0)
                 {

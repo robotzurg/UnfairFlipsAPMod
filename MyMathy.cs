@@ -1,11 +1,6 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Mathy
-// Assembly: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: CBDAB4D2-9C6B-4E2B-BD9C-23B148109529
-// Assembly location: C:\Users\admin\RiderProjects\UnfairFlipsAPMod\obj\Debug\PublicizedAssemblies\Assembly-CSharp.93B0C47EF44010426CA366C400DF0B88\Assembly-CSharp.dll
-
-using System;
+﻿using System;
 using System.Numerics;
+using BreakInfinity;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -37,14 +32,14 @@ public static class Mathy
     {
         return Mathf.Atan2((float) ((double) vector1.x * (double) vector2.y - (double) vector2.x * (double) vector1.y), (float) ((double) vector1.x * (double) vector2.x + (double) vector1.y * (double) vector2.y)) * 57.295776f;
     }
-
-    public static string CentsToDollarString(BigInteger cents)
+    
+    public static string CentsToDollarString(BigDouble totalCents)
     {
-        BigInteger num = cents / 100L;
-        string str1 = num.ToString();
-        num = cents % 100L;
-        string str2 = num.ToString("D2");
-        return $"${str1}.{str2}";
+        var dollars = (totalCents / 100).Floor();
+        var cents = (totalCents - (dollars * 100)).Round();
+        return dollars < 10000 ? 
+            $"${dollars.ToString("F0")}.{cents.ToString("F0").PadLeft(2, '0')}" 
+            : $"${dollars.ToString("G4")}";
     }
 
     public static string CentsToDollarString(int cents)

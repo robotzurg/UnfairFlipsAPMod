@@ -7,13 +7,14 @@ public class SlotData
     public readonly int RequiredHeads;
     public readonly int StartingHeadsChance;
     public readonly bool DeathLink;
-    public readonly bool EnergyLink;
+    // public readonly bool EnergyLink;
     public readonly int DeathLinkChance;
     public readonly int DeathLinkMinStreak;
     public readonly int HeadsUpgradeCount;
     public readonly int FlipTimeUpgradeCount;
     public readonly int ComboUpgradeCount;
     public readonly int AutoFlipUpgradeCount;
+    public readonly int FlipDifficulty;
 
     public SlotData(Dictionary<string, object> slotDict)
     {
@@ -23,8 +24,8 @@ public class SlotData
             StartingHeadsChance = (int)(long)startingHeadsChance;
         if (slotDict.TryGetValue("DeathLink", out var deathLink))
             DeathLink = (int)(long)deathLink == 1;
-        if (slotDict.TryGetValue("EnergyLink", out var energyLink))
-            EnergyLink = (int)(long)energyLink == 1;
+        // if (slotDict.TryGetValue("EnergyLink", out var energyLink))
+        //     EnergyLink = (int)(long)energyLink == 1;
         if (slotDict.TryGetValue("DeathLinkChance", out var deathLinkChance))
             DeathLinkChance = (int)(long)deathLinkChance;
         if (slotDict.TryGetValue("DeathLinkMinStreak", out var deathLinkMinStreak))
@@ -37,6 +38,8 @@ public class SlotData
             ComboUpgradeCount = (int)(long)comboUpgradeCount;
         if (slotDict.TryGetValue("AutoFlipUpgradeCount", out var autoFlipUpgradeCount))
             AutoFlipUpgradeCount = (int)(long)autoFlipUpgradeCount;
+        if (slotDict.TryGetValue("FlipDifficulty", out var flipDifficulty))
+            FlipDifficulty = (int)(long)flipDifficulty;
         if (DeathLink)
             UnfairFlipsAPMod.ArchipelagoHandler.UpdateTags(["DeathLink"]);
         UnfairFlipsAPMod.ItemHandler.FlushQueue();

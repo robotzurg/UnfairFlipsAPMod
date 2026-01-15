@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
+using BepInEx.Logging;
+using BreakInfinity;
 using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace UnfairFlipsAPMod;
 
@@ -11,7 +16,6 @@ public class ShopHandler
     /*
      * Shop Design Notes:
      * Shop costs should be set based on fairness
-     * Must also hook money to ensure there is a cap on the amount of money earned for each fairness level
      * Can display item names on shop items
      * Must have bought previous shop item for next to show up
      * Check location checked for the shop level in update based on fairness
@@ -25,11 +29,50 @@ public class ShopHandler
     [HarmonyPatch(typeof(ShopButton))]
     public class ShopButton_Patch
     {
+        public static Dictionary<ShopButton, BigDouble> Costs = new();
+
+        private static Dictionary<ShopButton.UpgradeType, string> PurchaseNames = new()
+        {
+            { ShopButton.UpgradeType.HeadsChance, "Heads Chance Purchase" },
+            { ShopButton.UpgradeType.FlipBaseWorth, "Coin Value Purchase" },
+            { ShopButton.UpgradeType.FlipMultiplier, "Combo Mult Purchase" },
+            { ShopButton.UpgradeType.FlipTime, "Flip Time Purchase"}
+        };
+        private static List<int> _valueUpgradeGates = null;
+        
+        
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         public static void Start_Postfix(ShopButton __instance)
         {
             __instance.gameObject.AddComponent<ShopButtonHoverHandler>();
+        }
+
+        private static List<int> InitializeValueUpgradeGates(int gateCount)
+        {
+            var gates = new List<int>();
+            for (int i = 0; i < 4; i++)
+                gates.Add(Mathf.RoundToInt((i + 1) * (gateCount - 1) / 4f));
+            return gates;
+        }
+
+        public static BigDouble GetCost(int gateIndex)
+        {
+            var gateCount = UnfairFlipsAPMod.SlotData.RequiredHeads / 2;
+            _valueUpgradeGates ??= InitializeValueUpgradeGates(gateCount);
+            var expectedCombo = ArchipelagoConstants.MinComboMultiplier + (ArchipelagoConstants.MaxComboMultiplier - ArchipelagoConstants.MinComboMultiplier) / gateCount * gateIndex;
+            var expectedChance = UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100f + (ArchipelagoConstants.MaxHeadsChance - UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100f) / gateCount * gateIndex;
+            var numValueUpgrades = _valueUpgradeGates.Count(x => x <= gateIndex);
+            var expectedValue = ArchipelagoConstants.CoinValues[numValueUpgrades];
+            var maxFlipLength = 1 + gateIndex * 2;
+            var baseMult = UnfairFlipsAPMod.SlotData.FlipDifficulty * expectedValue;
+            BigDouble expectedMoney = 0;
+            for (int i = 0; i < maxFlipLength; i++)
+                expectedMoney += BigDouble.Pow(expectedCombo, i) * BigDouble.Pow(expectedChance, i + 1);
+            expectedMoney *= baseMult;
+            var costMax = expectedMoney;
+            var reducer = UnityEngine.Random.Range(0.8f, 0.95f);
+            return BigDouble.Ceiling(costMax * reducer);
         }
 
         [HarmonyPatch("Update")]
@@ -65,18 +108,18 @@ public class ShopHandler
                             UnfairFlipsAPMod.SaveDataHandler.SaveData.HintedLocationIds.Add(locationId);
                             UnfairFlipsAPMod.SaveDataHandler.SaveGame();
                         }
-
-                        __instance.currentCost = (int)Math.Ceiling(
-                            Math.Pow(10, gateIndex) *
-                            UnityEngine.Random.Range(0.6f, 0.9f)
-                        );
+                        
+                        if (Costs.ContainsKey(__instance))
+                            Costs[__instance] = GetCost(gateIndex);
+                        else
+                            Costs.TryAdd(__instance, GetCost(gateIndex));
 
                         var itemDisplayName = info.ItemDisplayName;
                         var itemNameLength = itemDisplayName.Length;
                         if (itemNameLength > 23)
                             itemDisplayName = itemDisplayName[..23] + "...";
                         __instance.text.text =
-                            $"{itemDisplayName}\n{Mathy.CentsToDollarString(__instance.currentCost)}";
+                            $"{itemDisplayName}\n{Mathy.CentsToDollarString(Costs[__instance])}";
                     }
 
                     if (hoverHandler != null && scoutedLocations.TryGetValue(locationId, out var scoutInfo))
@@ -87,13 +130,13 @@ public class ShopHandler
                         var gameName = scoutInfo.ItemGame;
                         var (rarityName, rarityColor) = GetRarityInfo(scoutInfo.Flags);
                         
-                        hoverHandler.tooltipText = $"{itemName}\nfor {playerName} in {gameName}\nTier: <color={rarityColor}>{rarityName}</color>";
+                        hoverHandler.tooltipText = $"{PurchaseNames[__instance.upgradeType]} {shopIndex + 1}\nItem: {itemName}\nfor {playerName} in {gameName}\nTier: <color={rarityColor}>{rarityName}</color>";
                     }
                     
                     __instance.text.overflowMode = TMPro.TextOverflowModes.Truncate;
 
                     __instance.button.interactable =
-                        UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= __instance.currentCost;
+                        UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney >= Costs[__instance];
 
                     currentLocationForButton[__instance] = locationId;
                     return false;
@@ -123,7 +166,7 @@ public class ShopHandler
         {
             if (!currentLocationForButton.TryGetValue(__instance, out var locationId))
                 return false;
-            UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney -= __instance.currentCost;
+            UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney -= Costs[__instance];
             UnfairFlipsAPMod.ArchipelagoHandler.CheckLocation(locationId);
             return false;
         }

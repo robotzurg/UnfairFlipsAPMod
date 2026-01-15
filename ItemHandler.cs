@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Archipelago.MultiClient.Net.Models;
+using BreakInfinity;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -195,15 +196,29 @@ public class ItemHandler : MonoBehaviour
                 break;
                 
             case UFItem.Money:
-                var money = saveData.MaxMoney / 1000;
+                var combo = UnfairFlipsAPMod.SaveDataHandler.SaveData.ComboMult;
+                var value = UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinValue;
+                var fairness = UnfairFlipsAPMod.SaveDataHandler.SaveData.Fairness;
+                var maxFlipLength = 1 + fairness * 2;
+                maxFlipLength -= 5;
+                if (maxFlipLength <= 0)
+                    maxFlipLength = 1;
+                var money = value * new BigDouble(BigDouble.Ceiling(BigDouble.Pow(combo, maxFlipLength)));
                 if (money == 0)
                     money = 1;
                 saveData.PlayerMoney += money;
-                Log.Debug($"Received {Mathy.CentsToDollarString(money)}!");
+                Log.Warning($"Received {Mathy.CentsToDollarString(money)}!");
                 break;
                 
             case UFItem.MoreMoney:
-                money = saveData.MaxMoney / 500;
+                combo = UnfairFlipsAPMod.SaveDataHandler.SaveData.ComboMult;
+                value = UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinValue;
+                fairness = UnfairFlipsAPMod.SaveDataHandler.SaveData.Fairness;
+                maxFlipLength = 1 + fairness * 2;
+                maxFlipLength -= 3;
+                if (maxFlipLength <= 0)
+                    maxFlipLength = 1;
+                money = value * new BigDouble(Math.Ceiling(Math.Pow(combo, maxFlipLength)));
                 if (money == 0)
                     money = 1;
                 saveData.PlayerMoney += money;
@@ -211,7 +226,14 @@ public class ItemHandler : MonoBehaviour
                 break;
                 
             case UFItem.BigMoney:
-                money = saveData.MaxMoney / 100;
+                combo = UnfairFlipsAPMod.SaveDataHandler.SaveData.ComboMult;
+                value = UnfairFlipsAPMod.SaveDataHandler.SaveData.CoinValue;
+                fairness = UnfairFlipsAPMod.SaveDataHandler.SaveData.Fairness;
+                maxFlipLength = 1 + fairness * 2;
+                maxFlipLength -= 1;
+                if (maxFlipLength <= 0)
+                    maxFlipLength = 1;
+                money = value * new BigDouble(Math.Ceiling(Math.Pow(combo, maxFlipLength)));
                 if (money == 0)
                     money = 1;
                 saveData.PlayerMoney += money;

@@ -58,3 +58,5 @@ UnfairFlipsAPMod.csproj
 .env
 /Unfair_Flips_Archipelago_TS.zip
 /UnfairFlipsAPMod.zip
+/Package/Unfair_Flips_Archipelago/Archipelago.MultiClient.Net.dll
+/Package/Unfair_Flips_Archipelago/Newtonsoft.Json.dll

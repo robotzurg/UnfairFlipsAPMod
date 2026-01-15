@@ -14,7 +14,10 @@
 
 ## How do randomize work?
 Flip can only be heads if you have enough fairness.
-Money can only be big if you have enough fairness.
 Buy upgrades. Get as many heads in a row as you specified...
 
 You asked for this.
+
+## 1.3.0 Overhaul
+From this version, the money cap is removed and instead the cost of the items is calculated based on the expected money.
+The energy link option added in 1.2.0 has been removed since there is no longer "excess" money.

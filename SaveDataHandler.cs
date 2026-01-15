@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime;
+using BreakInfinity;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,16 +33,14 @@ public class CustomSaveData
     [SerializeField]
     private string playerMoney = "0";
 
-    public BigInteger MaxMoney => new(Math.Pow(10, Fairness + 1));
-
-    public BigInteger PlayerMoney
+    public BigDouble PlayerMoney
     {
-        get => BigInteger.Parse(playerMoney);
+        get => BigDouble.Parse(playerMoney);
         set
         {
-            if (UnfairFlipsAPMod.SlotData.EnergyLink && value > MaxMoney)
-                UnfairFlipsAPMod.ArchipelagoHandler.UpdateEnergyLink(value - MaxMoney);
-            playerMoney = value > MaxMoney ? MaxMoney.ToString() : value.ToString();
+            // if (UnfairFlipsAPMod.SlotData.EnergyLink && value > MaxMoney)
+            //     UnfairFlipsAPMod.ArchipelagoHandler.UpdateEnergyLink(value - MaxMoney);
+            playerMoney = value.ToString();
         } 
     }
     

@@ -7,33 +7,16 @@ namespace UnfairFlipsAPMod;
 
 public class CounterPatches : MonoBehaviour
 {
-    private GameObject moneyCapObject;
-    private static TextMeshProUGUI moneyCapText;
     private GameObject fairnessAmtObject;
     private static TextMeshProUGUI fairnessAmtText;
     
     public void Start()
     {
-        var moneyCounter = FindObjectOfType<MoneyCounter>();
-        var moneySource = moneyCounter.GetComponent<TMP_Text>();
-        var moneyParent = moneyCounter.transform.parent;
         var headsChanceCounter = FindObjectOfType<HeadsChanceCounter>();
         var headsSource = headsChanceCounter.GetComponent<TMP_Text>();
         var headsParent = headsChanceCounter.transform.parent;
         var actualRes = Screen.height;
         var refRes = 1080;
-        moneyCapObject = new GameObject("MoneyCap");
-        moneyCapObject.transform.SetParent(moneyParent.transform, false);
-        moneyCapObject.transform.position = moneyCounter.gameObject.transform.position;
-        moneyCapObject.transform.localPosition = moneyCounter.gameObject.transform.localPosition;
-        moneyCapText = moneyCapObject.AddComponent<TextMeshProUGUI>();
-        moneyCapText.font = moneySource.font;
-        moneyCapText.fontSize = moneySource.fontSize;
-        moneyCapText.alignment = TextAlignmentOptions.Center;
-        moneyCapText.enableAutoSizing = true;
-        moneyCapText.richText = true;
-        moneyCapText.color = Color.white;
-        moneyCapObject.transform.Translate(0, -50f * actualRes / refRes, 0);
         
         fairnessAmtObject = new GameObject("FairnessAmt");
         fairnessAmtObject.transform.SetParent(headsParent.transform, false);
@@ -79,7 +62,6 @@ public class CounterPatches : MonoBehaviour
             if (UnfairFlipsAPMod.SaveDataHandler?.SaveData != null)
             {
                 __instance.text.text = Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.PlayerMoney);
-                moneyCapText.text = "Max Money: " + Mathy.CentsToDollarString(UnfairFlipsAPMod.SaveDataHandler.SaveData.MaxMoney);
             }
             return false;
         }

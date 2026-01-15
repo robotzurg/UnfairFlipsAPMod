@@ -22,6 +22,8 @@ namespace UnfairFlipsAPMod
 
         public const int ShopLayers = 2;
 
+        public static int[] CoinValues = { 1, 5, 10, 25, 100 };
+
         // ========== LOCATION CONSTANTS (what you check in-game) ==========
         // These are the location IDs that get sent when you accomplish something
 

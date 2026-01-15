@@ -41,18 +41,53 @@
 		</Reference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Remove="BreakInfinity.cs\BreakInfinity.Benchmarks\**" />
+	  <Compile Remove="BreakInfinity.cs\BreakInfinity.Tests\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="BreakInfinity.cs\BreakInfinity.Benchmarks\**" />
+	  <EmbeddedResource Remove="BreakInfinity.cs\BreakInfinity.Tests\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="BreakInfinity.cs\BreakInfinity.Benchmarks\**" />
+	  <None Remove="BreakInfinity.cs\BreakInfinity.Tests\**" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PluginFiles Include="$(ProjectDir)Package\Unfair_Flips_Archipelago\**\*" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<UFDependencies Include="$(NuGetPackageRoot)archipelago.multiclient.net\6.7.0\lib\netstandard2.0\Archipelago.MultiClient.Net.dll" />
+		<UFDependencies Include="$(NuGetPackageRoot)newtonsoft.json\**\lib\netstandard2.0\Newtonsoft.Json.dll" />
+	</ItemGroup>
+	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<MakeDir Directories="$(ProjectDir)Package\Unfair_Flips_Archipelago" />
+		<MakeDir Directories="$(ProjectDir)output" />
+
 		<Copy
-				SourceFiles="$(TargetPath)"
-				DestinationFiles="$(STEAM_PATH)\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod\$(TargetFileName)" />
+			SourceFiles="$(TargetPath)"
+			DestinationFolder="$(ProjectDir)Package\Unfair_Flips_Archipelago"
+			OverwriteReadOnlyFiles="true" 
+		/>
+
 		<Copy
-				SourceFiles="$(TargetPath)"
-				DestinationFolder="$(ProjectDir)Package\Unfair_Flips_Archipelago"
-				OverwriteReadOnlyFiles="true" />
+			SourceFiles="@(UFDependencies)"
+			DestinationFolder="$(ProjectDir)Package\Unfair_Flips_Archipelago"
+			OverwriteReadOnlyFiles="true"
+		/>
+
 		<Copy
-				SourceFiles="$(ProjectDir)README.md"
-				DestinationFolder="$(ProjectDir)Package"
-				OverwriteReadOnlyFiles="true" />
-		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(ProjectDir)Unfair_Flips_Archipelago.zip' -Force&quot;" />
+			SourceFiles="@(PluginFiles)"
+			DestinationFolder="$(STEAM_PATH)\steamapps\common\Unfair Flips\BepInEx\plugins\UnfairFlipsAPMod"
+			OverwriteReadOnlyFiles="true" 
+		/>
+
+		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)Package\*' -DestinationPath '$(ProjectDir)\output\Unfair_Flips_Archipelago_TS.zip' -Force&quot;" />
+		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)Package\Unfair_Flips_Archipelago\*' -DestinationPath '$(ProjectDir)output\UnfairFlipsAPMod.zip' -Force&quot;" />
 	</Target>
 </Project>
