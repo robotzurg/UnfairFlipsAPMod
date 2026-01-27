@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using Archipelago.MultiClient.Net.Colors;
 using Archipelago.MultiClient.Net.Converters;
+using Archipelago.MultiClient.Net.MessageLog.Parts;
 using Archipelago.MultiClient.Net.Models;
 using BreakInfinity;
 using Newtonsoft.Json.Linq;
@@ -250,6 +251,11 @@ namespace UnfairFlipsAPMod
             }
 
             string messageStr;
+            if (message.Parts.Any(x => x.Type == MessagePartType.Player) &&
+                UnfairFlipsAPMod.FilterLog != null && 
+                UnfairFlipsAPMod.FilterLog.Value && 
+                !message.Parts.Any(x => x.Text.Contains(Session!.Players.GetPlayerName(Session.ConnectionInfo.Slot))))
+                return;
             if (message.Parts.Length == 1)
             {
                 messageStr = message.Parts[0].Text;

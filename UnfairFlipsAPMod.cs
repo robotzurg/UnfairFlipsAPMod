@@ -1,4 +1,6 @@
+using System.IO;
 using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 
@@ -9,8 +11,13 @@ namespace UnfairFlipsAPMod
     {
         private const string PluginGuid = "UnfairFlipsAPMod";
         private const string PluginName = "Unfair Flips Archipelago Mod";
-        private const string PluginVersion = "1.3.0";
+        private const string PluginVersion = "1.3.2";
+        public static string PluginDir;
         private readonly Harmony harmony = new(PluginGuid);
+        public static ConfigEntry<bool>? FilterLog;
+        public static ConfigEntry<float>? MessageInTime;
+        public static ConfigEntry<float>? MessageHoldTime;
+        public static ConfigEntry<float>? MessageOutTime;
         public static SlotData SlotData;
         public static ArchipelagoHandler ArchipelagoHandler { get; private set; }
         private static LoginHandler LoginHandler { get; set; }
@@ -20,10 +27,10 @@ namespace UnfairFlipsAPMod
 
         public void Awake()
         {
+            PluginDir = Path.GetDirectoryName(Info.Location);
             Application.runInBackground = true;
             harmony.PatchAll();
             Log.Init(Logger);
-
             var originalSaveManager = FindObjectOfType<MetaManager>();
             Destroy(originalSaveManager);
             gameObject.AddComponent<FileWriter>();
@@ -46,6 +53,13 @@ namespace UnfairFlipsAPMod
                 Log.Message("Disconnected from Archipelago");
                 LoginHandler.ToggleUI();
             };
+            
+            FilterLog = Config.Bind(
+                "Logging",
+                "FilterLog",
+                false,
+                "Filter the archipelago log to only show messages relevant to you."
+            );
         }
         
         public void OnDestroy()

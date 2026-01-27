@@ -32,7 +32,7 @@ public class AutoFlipIconHandler
         Object.Destroy(_autoFlipButtonObject.GetComponent<AudioButton>());
         
         var image = _autoFlipButtonObject.GetComponent<Image>();
-        var imagePath = Path.Combine(Paths.PluginPath, "UnfairFlipsAPMod/AutoFlipIcon.png");
+        var imagePath = Path.Combine(UnfairFlipsAPMod.PluginDir, "AutoFlipIcon.png");
         var imageData = File.ReadAllBytes(imagePath);
         var texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
         texture.LoadImage(imageData);

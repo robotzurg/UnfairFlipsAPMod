@@ -19,7 +19,7 @@ public class ReceivedItemsButtonHandler
         Object.Destroy(receivedItemsButtonObject.GetComponent<AudioButton>());
         var image = receivedItemsButtonObject.GetComponent<Image>();
         
-        var imagePath = Path.Combine(Paths.PluginPath, "UnfairFlipsAPMod/ArchipelagoLogo.png");
+        var imagePath = Path.Combine(UnfairFlipsAPMod.PluginDir, "ArchipelagoLogo.png");
         if (File.Exists(imagePath))
         {
             var imageData = File.ReadAllBytes(imagePath);
