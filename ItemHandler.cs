@@ -166,6 +166,12 @@ public class ItemHandler : MonoBehaviour
                 break;
                 
             case UFItem.AutoFlipUp:
+                if (!saveData.HasAutoFlip)
+                {
+                    UnfairFlipsAPMod.ArchipelagoHandler.AddMessageToGameLog(
+                        "The new button in the top right turns on autoflip... In case you're feeling too lazy to press a button."
+                    );
+                }
                 saveData.HasAutoFlip = true;
                 AutoFlipIconHandler.IsVisible = true;
                 saveData.AutoFlipUpCount++;

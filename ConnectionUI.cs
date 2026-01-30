@@ -7,12 +7,13 @@ namespace UnfairFlipsAPMod
         private bool showUI = true;
 #if DEBUG
         private string hostname = "localhost";
-        private string slotName = "Jeff-UF";
+        private string slotName = "Player1";
+        private string port = "38281";
 #elif RELEASE
         private string hostname = "archipelago.gg";
-        private string slotName = "Player1";
+        private string slotName = "" ;
+        private string port = "";
 #endif
-        private string port = "38281";
         private string password = "";
         private string statusMessage = "";
         private Rect windowRect = new Rect(Screen.width / 2 - 300, Screen.height / 2 - 250, 800, 700);

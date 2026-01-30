@@ -15,6 +15,7 @@ public class SlotData
     public readonly int ComboUpgradeCount;
     public readonly int AutoFlipUpgradeCount;
     public readonly int FlipDifficulty;
+    public readonly bool AutoFlipEnabled;
 
     public SlotData(Dictionary<string, object> slotDict)
     {
@@ -40,6 +41,8 @@ public class SlotData
             AutoFlipUpgradeCount = (int)(long)autoFlipUpgradeCount;
         if (slotDict.TryGetValue("FlipDifficulty", out var flipDifficulty))
             FlipDifficulty = (int)(long)flipDifficulty;
+        if (slotDict.TryGetValue("AutoFlipEnabled", out var autoFlipEnabled))
+            AutoFlipEnabled = (int)(long)autoFlipEnabled == 1;
         if (DeathLink)
             UnfairFlipsAPMod.ArchipelagoHandler.UpdateTags(["DeathLink"]);
         UnfairFlipsAPMod.ItemHandler.FlushQueue();

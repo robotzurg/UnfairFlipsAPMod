@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Numerics;
 using BreakInfinity;
 using HarmonyLib;
@@ -18,6 +19,7 @@ public class GameHandler : MonoBehaviour
     private static Coroutine _queuedAutoFlip;
     private static CoinFlip _coinFlip;
     private static SlotData SlotData => UnfairFlipsAPMod.SlotData;
+    private List<CoinFlip.TutorialMessage> tutorialMessages = new();
     
     public void InitOnConnect()
     {
@@ -25,7 +27,7 @@ public class GameHandler : MonoBehaviour
         AutoFlipIconHandler.CreateButton();
         ReceivedItemsButtonHandler.CreateButton();
         _coinFlip = FindObjectOfType<CoinFlip>();
-        _coinFlip.tutorialMessages =
+        tutorialMessages =
         [
             CreateTutorialMessage("Welcome to Unfair Flips Archipelago!", 2),
             CreateTutorialMessage("This game doesn't have a credits screen", 3),
@@ -42,7 +44,6 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("Flip+ decreases the flip time", 32),
             CreateTutorialMessage("Combo+ increases the combo multiplier", 33),
             CreateTutorialMessage("Coin+ increases the coin type progressively", 34),
-            CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35),
             CreateTutorialMessage("$/$$/$$$ give money, more money, and even more money respectively", 36),
             CreateTutorialMessage("Tails Trap makes your next coinflip tails", 37),
             CreateTutorialMessage("Penny Trap makes your next coinflip worth a penny", 38),
@@ -54,12 +55,15 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("WOW you did a hundred flips. That's almost a hundred and one. Goo:) Job", 100),
             CreateTutorialMessage("WOW you did a hundred and one flips. That's almost a hundred and two. Goo:) Job!", 101),
             CreateTutorialMessage("Okay I'll stop now...", 102),
-            CreateTutorialMessage("The new button in the top right turns on autoflip... In case you're feeling too lazy to press a button.", 200),
+
             CreateTutorialMessage("You are statistically likely to finish this game.", 300),
             CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
             CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000),
             CreateTutorialMessage("Honestly, if you're seeing this, you might be too unlucky for this game. Hope things go better next time!.", 10000)
         ];
+
+        if (UnfairFlipsAPMod.SlotData.AutoFlipEnabled)
+            tutorialMessages.Add(CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35));
         QueueNextAutoFlip();
     }
 

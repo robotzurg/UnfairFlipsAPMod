@@ -11,6 +11,7 @@ public class ReceivedItemsButtonHandler
     
     public static void CreateButton() {
         var reference = Object.FindObjectOfType<AudioButton>().gameObject;
+        var flip = Object.FindObjectOfType<CoinFlip>();
         var referenceParent = reference.transform.parent;
         
         var receivedItemsButtonObject = Object.Instantiate(reference, referenceParent);
@@ -43,6 +44,8 @@ public class ReceivedItemsButtonHandler
         button.onClick.AddListener(() =>
         {
             UnfairFlipsAPMod.ArchipelagoHandler.DisplayItemCounts();
+            if (flip != null)
+                UnfairFlipsAPMod.ArchipelagoHandler.AddMessageToGameLog($"<color=#00FF7F>TOTAL FLIPS: {flip.numFlips}</color>");
         });
     }
 }

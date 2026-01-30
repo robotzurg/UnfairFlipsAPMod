@@ -273,7 +273,7 @@ namespace UnfairFlipsAPMod
             AddMessageToGameLog(messageStr);
         }
 
-        private void AddMessageToGameLog(string message)
+        public void AddMessageToGameLog(string message)
         {
             StartCoroutine(AddMessageToGameLogRoutine(message));
         }

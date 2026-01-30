@@ -44,7 +44,10 @@ public class CounterPatches : MonoBehaviour
             {
                 var headsChance = 1 + (UnfairFlipsAPMod.SaveDataHandler.SaveData.Fairness * 2);
                 __instance.text.text = $"HEADS CHANCE: {((int) (UnfairFlipsAPMod.SaveDataHandler.SaveData.HeadsChance * 100.0)).ToString()}%";
-                fairnessAmtText.text = $"Max Heads Chain: {headsChance:D0}";
+                fairnessAmtText.rectTransform.anchorMin = new Vector2(0, fairnessAmtText.rectTransform.anchorMin.y);
+                fairnessAmtText.rectTransform.anchorMax = new Vector2(1, fairnessAmtText.rectTransform.anchorMax.y);
+                fairnessAmtText.fontSizeMax = 48;
+                fairnessAmtText.text = $"Max Heads In A Row: {headsChance:D0}";
                 if (Mathf.Approximately(headsChance, UnfairFlipsAPMod.SaveDataHandler.SaveData.HeadsChance))
                     fairnessAmtText.color = new Color(0.56f, 0.93f, 0.56f); // Light green
             }
