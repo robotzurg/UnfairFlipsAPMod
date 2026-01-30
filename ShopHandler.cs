@@ -58,7 +58,7 @@ public class ShopHandler
 
         public static BigDouble GetCost(int gateIndex)
         {
-            var gateCount = UnfairFlipsAPMod.SlotData.RequiredHeads / 2;
+            var gateCount = (int)Math.Ceiling((double)(UnfairFlipsAPMod.SlotData.RequiredHeads + 1) / 2);
             _valueUpgradeGates ??= InitializeValueUpgradeGates(gateCount);
             var expectedCombo = ArchipelagoConstants.MinComboMultiplier + (ArchipelagoConstants.MaxComboMultiplier - ArchipelagoConstants.MinComboMultiplier) / gateCount * gateIndex;
             var expectedChance = UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100f + (ArchipelagoConstants.MaxHeadsChance - UnfairFlipsAPMod.SlotData.StartingHeadsChance / 100f) / gateCount * gateIndex;
