@@ -27,17 +27,17 @@ public class GameHandler : MonoBehaviour
         AutoFlipIconHandler.CreateButton();
         ReceivedItemsButtonHandler.CreateButton();
         _coinFlip = FindObjectOfType<CoinFlip>();
-        tutorialMessages =
+        _coinFlip.tutorialMessages = 
         [
             CreateTutorialMessage("Welcome to Unfair Flips Archipelago!", 2),
-            CreateTutorialMessage("This game doesn't have a credits screen", 3),
-            CreateTutorialMessage("So we'll list off all the cool people who helped make this a reality here", 4),
-            CreateTutorialMessage("Developer - xMcacutt", 5),
-            CreateTutorialMessage("Co-Developer - Jeffdev", 6),
-            CreateTutorialMessage("apworld Logic - itepastra (Noa)", 7),
-            CreateTutorialMessage("apworld Support - DashieSwag92", 8),
-            CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 9),
-            CreateTutorialMessage("May the odds... idk do whatever they feel like", 10),
+            CreateTutorialMessage("GAME MADE BY HEATHER FLOWERS", 3),
+            CreateTutorialMessage("ART BY GWYNDOLYN MARCHANT", 4),
+            CreateTutorialMessage("AND A SPECIAL SFX BY SURASSHU", 5),
+            CreateTutorialMessage("Archipelago by xMcacutt and Jeffdev", 6),
+            CreateTutorialMessage("with help from itepastra (Noa)", 8),
+            CreateTutorialMessage("and DashieSwag92", 9),
+            CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 10),
+            CreateTutorialMessage("May the odds... idk do whatever they feel like", 11),
             CreateTutorialMessage($"Your goal is to get {SlotData.RequiredHeads} heads in a row!", 20),
             CreateTutorialMessage("Curious about the Archipelago items?", 30),
             CreateTutorialMessage("Heads+/Progressive Fairness increase the chance of getting heads, and increases the max heads in a row you can get respectively", 31),
@@ -60,7 +60,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("Eight Eight Eight Eight Eight Eight Eight Eight", 888),
             CreateTutorialMessage("You realise your friends want to finish this generation right?", 1000),
             CreateTutorialMessage("Honestly, if you're seeing this, you might be too unlucky for this game. Hope things go better next time!.", 10000)
-        ];
+         ];
 
         if (UnfairFlipsAPMod.SlotData.AutoFlipEnabled)
             tutorialMessages.Add(CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35));
@@ -185,9 +185,9 @@ public class GameHandler : MonoBehaviour
         {
             InitFlip(coinFlip);
 
-            for (var index = 0; index < coinFlip.tutorialMessages.Length; ++index)
+            for (var index = 0; index < _coinFlip.tutorialMessages.Length; ++index)
             {
-                if (coinFlip.tutorialMessages[index].flipnum == coinFlip.numFlips)
+                if (_coinFlip.tutorialMessages[index].flipnum == coinFlip.numFlips)
                     coinFlip.messageManager.ShowMessage($"<color=#bbffbb>{coinFlip.tutorialMessages[index].message}</color>");
             }
             

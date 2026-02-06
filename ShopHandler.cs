@@ -83,9 +83,9 @@ public class ShopHandler
                 UnfairFlipsAPMod.SlotData == null)
                 return false;
 
-            var gateCount = UnfairFlipsAPMod.SlotData.RequiredHeads / 2;
+            var gateCount = (int)Math.Ceiling(((float)UnfairFlipsAPMod.SlotData.RequiredHeads + 1) / 2);
 
-            for (var gateIndex = 0; gateIndex < gateCount + 1; gateIndex++)
+            for (var gateIndex = 0; gateIndex < gateCount; gateIndex++)
             {
                 for (var layer = 0; layer < ArchipelagoConstants.ShopLayers; layer++)
                 {
