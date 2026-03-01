@@ -183,7 +183,8 @@ namespace UnfairFlipsAPMod
         
         public void CheckLocation(long id)
         {
-            locationsToCheck.Enqueue(id);
+            if (!IsLocationChecked(id))
+                locationsToCheck.Enqueue(id);
         }
         
         private IEnumerator RunCheckQueue()
@@ -330,11 +331,14 @@ namespace UnfairFlipsAPMod
 
         private void BouncePacketReceived(BouncePacket packet)
         {
-            if (UnfairFlipsAPMod.SlotData.DeathLink)
-                ProcessBouncePacket(packet, "DeathLink", ref lastDeath, (source, data) =>
-                    HandleDeathLink(source, data["cause"]?.ToString() ?? "Unknown"));
-        }
+            if (!UnfairFlipsAPMod.SlotData.DeathLink) return;
 
+            ProcessBouncePacket(packet, "DeathLink", ref lastDeath, (source, data) => {
+                var deathCause = data.TryGetValue("cause", out var value) ? value.ToString() : $"{source} has died.";
+                HandleDeathLink(source, deathCause);
+            });
+        }
+        
         private static void ProcessBouncePacket(BouncePacket packet, string tag, ref string lastTime,
             Action<string, Dictionary<string, JToken>> handler)
         {
@@ -350,7 +354,6 @@ namespace UnfairFlipsAPMod
             if (packet.Data.TryGetValue("cause", out var causeObj))
             {
                 var cause = causeObj?.ToString() ?? "Unknown";
-                //Console.WriteLine($"Received Bounce Packet with Tag: {tag} :: {cause}");
             }
 
             handler(source, packet.Data);

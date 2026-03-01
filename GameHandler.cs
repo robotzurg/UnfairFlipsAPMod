@@ -185,9 +185,9 @@ public class GameHandler : MonoBehaviour
         {
             InitFlip(coinFlip);
 
-            for (var index = 0; index < _coinFlip.tutorialMessages.Length; ++index)
+            for (var index = 0; index < coinFlip.tutorialMessages.Length; ++index)
             {
-                if (_coinFlip.tutorialMessages[index].flipnum == coinFlip.numFlips)
+                if (coinFlip.tutorialMessages[index].flipnum == coinFlip.numFlips)
                     coinFlip.messageManager.ShowMessage($"<color=#bbffbb>{coinFlip.tutorialMessages[index].message}</color>");
             }
             
@@ -249,7 +249,7 @@ public class GameHandler : MonoBehaviour
                 coinFlip.panelManager.SetPanelArrangement(4);
                 coinFlip.flipButton.enabled = false;
                 UnfairFlipsAPMod.ArchipelagoHandler.Release();
-                coinFlip.gameObject.CancelTweens(false);
+                coinFlip.gameObject.CancelTweens();
                 var anchoredPositionTween3 = new AnchoredPositionTween();
                 anchoredPositionTween3.from = coinFlip.flipBasePosition;
                 anchoredPositionTween3.to = coinFlip.flipTarget;
@@ -290,7 +290,7 @@ public class GameHandler : MonoBehaviour
                 _flipMoneyResult = 0;
                 FindObjectOfType<FlipResultMessage>().ShowResult(true, 0L, SlotData.RequiredHeads);
                 yield return new WaitForSeconds(1f);
-                var objectsOfType = Object.FindObjectsOfType<RocketSpawner>();
+                var objectsOfType = FindObjectsOfType<RocketSpawner>();
                 objectsOfType[0].SpawnRockets(0.0f);
                 objectsOfType[1].SpawnRockets(1f);
                 yield return new WaitForSeconds(4f);
@@ -338,10 +338,11 @@ public class GameHandler : MonoBehaviour
                     coinFlip.img.sprite = coinFlip.coinColors[coinFlip.currentCoin].coinHappy;
                     SaveManager.SaveData.PlayerMoney += money;
                     coinFlip.UnlockCheevo(coinFlip.headsComboNum + "FLIP");
-                    var gameObject = Object.Instantiate(coinFlip.prf_sfx);
-                    gameObject.GetComponent<AudioSource>().clip = coinFlip.headsSounds[Math.Min(coinFlip.headsComboNum - 1, 9)];
+                    var gameObject = Instantiate(coinFlip.prf_sfx);
+                    var soundIndex = Mathf.Clamp(coinFlip.headsComboNum - 1, 0, coinFlip.headsSounds.Length - 1);
+                    gameObject.GetComponent<AudioSource>().clip = coinFlip.headsSounds[soundIndex];
                     gameObject.GetComponent<AudioSource>().Play();
-                    Object.Destroy(gameObject, 3f);
+                    Destroy(gameObject, 3f);
                 }
                 else
                 {
