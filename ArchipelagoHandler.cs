@@ -79,6 +79,15 @@ namespace UnfairFlipsAPMod
             Session.Socket.PacketReceived += PacketReceived;
             Session.Items.ItemReceived += ItemReceived;
         }
+
+        private void OnDestroy()
+        {
+            Session.MessageLog.OnMessageReceived -= OnMessageReceived;
+            Session.Socket.ErrorReceived -= OnError;
+            Session.Socket.SocketClosed -= OnSocketClosed;
+            Session.Socket.PacketReceived -= PacketReceived;
+            Session.Items.ItemReceived -= ItemReceived;
+        }
         
         public void Connect()
         {

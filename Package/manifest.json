@@ -1,6 +1,6 @@
 {
   "name": "Unfair_Flips_Archipelago",
-  "version_number": "1.3.2",
+  "version_number": "1.4.2",
   "website_url": "https://github.com/robotzurg/UnfairFlipsAPMod",
   "description": "Archipelago.gg implementation for Unfair Flips",
   "dependencies": [
