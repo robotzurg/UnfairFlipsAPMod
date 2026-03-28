@@ -1,6 +1,13 @@
 ﻿# Unfair Flips - Archipelago Mod
 
-## Install Guide
+## Thunderstore Install Guide (Recommended!)
+1. Install [r2modman](https://thunderstore.io/package/ebkr/r2modman/) or something like it
+2. Select Unfair Flips
+3. Download the Archipelago mod on the online browser.
+4. Click "Play Modded"
+5. Enjoy!
+
+## Manual Install Guide
 1. Download [BepinEx](https://github.com/BepInEx/BepInEx/releases) 5.4 for x64 architecture
 2. Extract all files into your Unfair Flips directory
 3. Launch the game
