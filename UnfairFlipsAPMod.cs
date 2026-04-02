@@ -11,7 +11,7 @@ namespace UnfairFlipsAPMod
     {
         private const string PluginGuid = "UnfairFlipsAPMod";
         private const string PluginName = "Unfair Flips Archipelago Mod";
-        private const string PluginVersion = "1.4.2";
+        private const string PluginVersion = "1.4.3";
         public static string PluginDir;
         private readonly Harmony harmony = new(PluginGuid);
         public static ConfigEntry<bool>? FilterLog;
