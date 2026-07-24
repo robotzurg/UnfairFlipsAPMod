@@ -113,11 +113,21 @@ namespace UnfairFlipsAPMod
                     apHandler.Disconnect();
                 }
             }
+            else if (apHandler != null && apHandler.IsConnecting)
+            {
+                GUI.enabled = false;
+                GUILayout.Button($"Connecting...", GUILayout.Height(40));
+                GUI.enabled = true;
+            }
             else
             {
                 if (GUILayout.Button("Connect", GUILayout.Height(40)))
                 {
-                    if (string.IsNullOrEmpty(slotName))
+                    if (string.IsNullOrEmpty(hostname))
+                    {
+                        statusMessage = "Please enter a hostname!";
+                    }
+                    else if (string.IsNullOrEmpty(slotName))
                     {
                         statusMessage = "Please enter a slot name!";
                     }

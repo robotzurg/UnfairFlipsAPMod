@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
+using Archipelago.MultiClient.Net.Packets;
 using BepInEx.Logging;
 using BreakInfinity;
 using HarmonyLib;
@@ -100,7 +101,10 @@ public class ShopHandler
                     if (!scoutedLocations.ContainsKey(locationId))
                     {
                         var shouldHint = !UnfairFlipsAPMod.SaveDataHandler.SaveData.HintedLocationIds.Contains(locationId);
-                        var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId, shouldHint);
+                        var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
+                        if (info.Flags.HasFlag(ItemFlags.Advancement))
+                            UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId, true);
+                        
                         scoutedLocations[locationId] = info;
 
                         if (shouldHint)

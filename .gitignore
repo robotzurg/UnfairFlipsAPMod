@@ -60,3 +60,7 @@ UnfairFlipsAPMod.csproj
 /UnfairFlipsAPMod.zip
 /Package/Unfair_Flips_Archipelago/Archipelago.MultiClient.Net.dll
 /Package/Unfair_Flips_Archipelago/Newtonsoft.Json.dll
+/.idea
+Folder.DotSettings.user
+*.zip
+*.dll

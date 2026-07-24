@@ -11,6 +11,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.Colors;
 using Archipelago.MultiClient.Net.Converters;
 using Archipelago.MultiClient.Net.MessageLog.Parts;
@@ -89,50 +90,126 @@ namespace UnfairFlipsAPMod
             Session.Items.ItemReceived -= ItemReceived;
         }
         
+        private const float ConnectTimeoutSeconds = 15f;
+        public bool IsConnecting { get; private set; }
+
         public void Connect()
         {
-            Log.Message($"Logging in to {Server}:{Port} as {Slot}...");
-            seed = Session.ConnectAsync()?.Result?.SeedName;
-            
-            var result = Session.LoginAsync(
-                "Unfair Flips",
-                Slot,
-                ItemsHandlingFlags.AllItems,
-                new Version(0, 6, 5),
-                [],
-                password: Password
-            ).Result;
-
-            if (result.Successful)
+            if (IsConnecting)
             {
-                Log.Message($"Success! Connected to {Server}:{Port}");
-                var successResult = (LoginSuccessful)result;
-                UnfairFlipsAPMod.SlotData = new SlotData(successResult.SlotData);
-                
-                if (seed != null)
-                    UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
-
-                // if (UnfairFlipsAPMod.SlotData.EnergyLink)
-                // {
-                //     energyLinkKey = "EnergyLink" + Session.ConnectionInfo.Team;
-                //     Session.DataStorage[Scope.Global, energyLinkKey].Initialize(0);
-                //     Session.DataStorage[Scope.Global, energyLinkKey].OnValueChanged += EnergyLinkChanged;
-                // }
-            
-                FindObjectOfType<PanelManager>().SetPanelArrangement(2);
-                UnfairFlipsAPMod.GameHandler.InitOnConnect();
-                StartCoroutine(RunCheckQueue());
-                OnConnected?.Invoke();
+                Log.Warning("Connect requested while already connecting; ignoring.");
                 return;
             }
+            StartCoroutine(ConnectRoutine());
+        }
 
-            var failure = (LoginFailure)result;
-            var errorMessage = $"Failed to Connect to {Server}:{Port} as {Slot}:";
-            errorMessage = failure.Errors.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
-            errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
-            OnConnectionFailed?.Invoke(errorMessage);
-            Log.Error(errorMessage);
-            Log.Info("Attempting reconnect...");
+        private IEnumerator ConnectRoutine()
+        {
+            IsConnecting = true;
+            try
+            {
+                Log.Message($"Logging in to {Server}:{Port} as {Slot}...");
+
+                // Step 1: open the socket / fetch room info.
+                var connectTask = Session.ConnectAsync();
+                foreach (var step in WaitForTask(connectTask))
+                    yield return step;
+
+                if (!connectTask.IsCompleted)
+                {
+                    Fail($"Connection to {Server}:{Port} timed out after {ConnectTimeoutSeconds:0}s. " +
+                         "Check the hostname/port and that the server is online.");
+                    yield break;
+                }
+                if (connectTask.IsFaulted)
+                {
+                    Fail($"Could not reach {Server}:{Port}: {Describe(connectTask.Exception)}");
+                    yield break;
+                }
+
+                seed = connectTask.Result?.SeedName;
+
+                // Step 2: authenticate the slot.
+                var loginTask = Session.LoginAsync(
+                    "Unfair Flips",
+                    Slot,
+                    ItemsHandlingFlags.AllItems,
+                    new Version(0, 6, 7),
+                    [],
+                    password: Password
+                );
+                foreach (var step in WaitForTask(loginTask))
+                    yield return step;
+
+                if (!loginTask.IsCompleted)
+                {
+                    Fail($"Login to {Server}:{Port} as {Slot} timed out after {ConnectTimeoutSeconds:0}s.");
+                    yield break;
+                }
+                if (loginTask.IsFaulted)
+                {
+                    Fail($"Login failed: {Describe(loginTask.Exception)}");
+                    yield break;
+                }
+
+                var result = loginTask.Result;
+                if (result.Successful)
+                {
+                    Log.Message($"Success! Connected to {Server}:{Port}");
+                    var successResult = (LoginSuccessful)result;
+                    UnfairFlipsAPMod.SlotData = new SlotData(successResult.SlotData);
+
+                    if (seed != null)
+                        UnfairFlipsAPMod.SaveDataHandler!.GetSaveGame(seed, Slot);
+
+                    // if (UnfairFlipsAPMod.SlotData.EnergyLink)
+                    // {
+                    //     energyLinkKey = "EnergyLink" + Session.ConnectionInfo.Team;
+                    //     Session.DataStorage[Scope.Global, energyLinkKey].Initialize(0);
+                    //     Session.DataStorage[Scope.Global, energyLinkKey].OnValueChanged += EnergyLinkChanged;
+                    // }
+
+                    FindObjectOfType<PanelManager>().SetPanelArrangement(2);
+                    UnfairFlipsAPMod.GameHandler.InitOnConnect();
+                    StartCoroutine(RunCheckQueue());
+                    OnConnected?.Invoke();
+                    yield break;
+                }
+
+                var failure = (LoginFailure)result;
+                var errorMessage = $"Failed to connect to {Server}:{Port} as {Slot}:";
+                errorMessage = failure.Errors.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
+                errorMessage = failure.ErrorCodes.Aggregate(errorMessage, (current, error) => current + $"\n    {error}");
+                Fail(errorMessage);
+            }
+            finally
+            {
+                IsConnecting = false;
+            }
+        }
+        
+        private static IEnumerable<object> WaitForTask(Task task)
+        {
+            var elapsed = 0f;
+            while (!task.IsCompleted && elapsed < ConnectTimeoutSeconds)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private void Fail(string message)
+        {
+            Log.Error(message);
+            OnConnectionFailed?.Invoke(message);
+        }
+
+        // Turns the AggregateException wrapper from a faulted task into a readable message.
+        private static string Describe(Exception ex)
+        {
+            if (ex is AggregateException agg)
+                ex = agg.Flatten().InnerExceptions.FirstOrDefault() ?? agg;
+            return ex?.Message ?? "unknown error";
         }
 
         public void Disconnect()
