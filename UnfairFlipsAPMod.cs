@@ -11,10 +11,14 @@ namespace UnfairFlipsAPMod
     {
         private const string PluginGuid = "UnfairFlipsAPMod";
         private const string PluginName = "Unfair Flips Archipelago Mod";
-        private const string PluginVersion = "1.4.6";
+        private const string PluginVersion = "1.4.7";
         public static string PluginDir;
         private readonly Harmony harmony = new(PluginGuid);
         public static ConfigEntry<bool>? FilterLog;
+        public static ConfigEntry<bool> AllowGoal;
+        public static ConfigEntry<bool> HintProg;
+        public static ConfigEntry<bool> HintUseful;
+        public static ConfigEntry<bool> HintFillerTrap;
         public static ConfigEntry<float>? MessageInTime;
         public static ConfigEntry<float>? MessageHoldTime;
         public static ConfigEntry<float>? MessageOutTime;
@@ -59,6 +63,34 @@ namespace UnfairFlipsAPMod
                 "FilterLog",
                 false,
                 "Filter the archipelago log to only show messages relevant to you."
+            );
+
+            AllowGoal = Config.Bind(
+                "Archipelago",
+                "Allow Goal",
+                true,
+                "Allow goal to be achieved. You can turn this off if you want to get all shop checks before goaling."
+            );
+            
+            HintProg = Config.Bind(
+                "Archipelago",
+                "Hint Progression Shop Items",
+                true,
+                "Auto-hint shop items that are labeled progression."
+            );
+            
+            HintUseful = Config.Bind(
+                "Archipelago",
+                "Hint Useful Shop Items",
+                true,
+                "Auto-hint shop items that are labeled useful."
+            );
+            
+            HintFillerTrap = Config.Bind(
+                "Archipelago",
+                "Hint Filler/Trap Shop Items",
+                false,
+                "Auto-hint shop items that are labeled filler or trap."
             );
         }
         

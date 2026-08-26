@@ -256,7 +256,7 @@ namespace UnfairFlipsAPMod
             }
         }
         
-        public void Release()
+        public void SetGoalCompleted()
         {
             Session.SetGoalAchieved();
             Session.SetClientState(ArchipelagoClientState.ClientGoal);

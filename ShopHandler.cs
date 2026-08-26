@@ -102,9 +102,12 @@ public class ShopHandler
                     {
                         var shouldHint = !UnfairFlipsAPMod.SaveDataHandler.SaveData.HintedLocationIds.Contains(locationId);
                         var info = UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId);
-                        if (info.Flags.HasFlag(ItemFlags.Advancement))
+                        if (info.Flags.HasFlag(ItemFlags.NeverExclude) && UnfairFlipsAPMod.HintUseful.Value 
+                            || info.Flags.HasFlag(ItemFlags.Advancement) && UnfairFlipsAPMod.HintProg.Value 
+                            || info.Flags.HasFlag(ItemFlags.None) && UnfairFlipsAPMod.HintFillerTrap.Value
+                            || info.Flags.HasFlag(ItemFlags.Trap) && UnfairFlipsAPMod.HintFillerTrap.Value)
                             UnfairFlipsAPMod.ArchipelagoHandler.TryScoutLocation(locationId, true);
-                        
+
                         scoutedLocations[locationId] = info;
 
                         if (shouldHint)

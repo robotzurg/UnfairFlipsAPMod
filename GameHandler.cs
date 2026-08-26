@@ -39,6 +39,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("Testing & Support - Sterlia, EthicalLogic, Peppidesu, Mac", 10),
             CreateTutorialMessage("May the odds... idk do whatever they feel like", 11),
             CreateTutorialMessage($"Your goal is to get {SlotData.RequiredHeads} heads in a row!", 20),
+            CreateTutorialMessage("If you want to go for all checks before goaling, look in the mod config!", 21),
             CreateTutorialMessage("Curious about the Archipelago items?", 30),
             CreateTutorialMessage("Heads+ increases the chance of getting heads", 31),
             CreateTutorialMessage("Progressive Fairness increases the max heads in a row you can get", 32),
@@ -50,7 +51,7 @@ public class GameHandler : MonoBehaviour
             CreateTutorialMessage("Penny Trap makes your next coinflip worth a penny", 38),
             CreateTutorialMessage("Tax Trap makes you pay some money after your next coinflip", 39),
             CreateTutorialMessage("Slow Trap makes the next coinflip take 10 seconds", 40),
-            CreateTutorialMessage("That's all you need to know! Good luck!", 41),
+            CreateTutorialMessage("That's all you need to know! Good luck!", 42),
             CreateTutorialMessage("67 coin flips. I don't wanna hear it.", 67),
             CreateTutorialMessage("69 coin flips. Nice.", 69),
             CreateTutorialMessage("WOW you did a hundred flips. That's almost a hundred and one. Goo:) Job", 100),
@@ -64,7 +65,7 @@ public class GameHandler : MonoBehaviour
          ];
 
         if (UnfairFlipsAPMod.SlotData.AutoFlipEnabled)
-            tutorialMessages.Add(CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 35));
+            tutorialMessages.Add(CreateTutorialMessage("AutoFlip+ makes the autoflip button work faster!", 41));
         QueueNextAutoFlip();
     }
 
@@ -223,6 +224,15 @@ public class GameHandler : MonoBehaviour
             if (SaveManager.SaveData.QueuedTailsTraps > 0)
                 SaveManager.SaveData.QueuedTailsTraps--;
             var heads = canBeHeads && Random.Range(0.0f, 1f) < (double) SaveManager.SaveData.HeadsChance;
+
+            if (!UnfairFlipsAPMod.AllowGoal.Value)
+            {
+                if (heads && coinFlip.headsComboNum == SlotData.RequiredHeads - 1)
+                {
+                    heads = false;
+                    coinFlip.messageManager.ShowMessage("Mod config disallows goal, so you cannot hit the last flip!");
+                }
+            }
             
             if (heads != coinFlip.prevWasHeads)
                 flipTurnMultiplier += 0.5f;
@@ -249,7 +259,7 @@ public class GameHandler : MonoBehaviour
             {
                 coinFlip.panelManager.SetPanelArrangement(4);
                 coinFlip.flipButton.enabled = false;
-                UnfairFlipsAPMod.ArchipelagoHandler.Release();
+                UnfairFlipsAPMod.ArchipelagoHandler.SetGoalCompleted();
                 coinFlip.gameObject.CancelTweens();
                 var anchoredPositionTween3 = new AnchoredPositionTween();
                 anchoredPositionTween3.from = coinFlip.flipBasePosition;
